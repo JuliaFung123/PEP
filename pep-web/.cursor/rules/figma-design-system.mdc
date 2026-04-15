@@ -1,0 +1,66 @@
+---
+description: Rules for implementing Figma designs in this repo (Vite + React + TS + Tailwind v4). Covers component placement, styling conventions, tokens, assets, and the required Figma-to-code workflow.
+globs: "src/**/*.{ts,tsx,css}"
+alwaysApply: false
+---
+
+## Project snapshot (must match)
+
+- **Framework**: React 19 + Vite
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS v4 via `@tailwindcss/vite` (no `tailwind.config.*` in this repo)
+- **UI component style**: shadcn-style patterns (Tailwind + `cva` variants + `cn()` merge)
+
+## Component organization
+
+- **UI primitives**: create/reuse components in `src/components/ui/` (example: `src/components/ui/button.tsx`).
+- **Shared utilities**: put shared helpers in `src/lib/` (example: `src/lib/utils.ts` exports `cn()`).
+- **App/feature components**: create feature-level components under `src/components/` (e.g. `src/components/features/...`) when they’re not reusable primitives.
+
+## Import + API conventions
+
+- **No path aliases**: do not use `@/...` imports unless the repo is later configured for it. Use relative imports (e.g. `../../lib/utils`).
+- **Classnames**: components that render DOM should accept `className?: string` and merge it with `cn(...)`.
+- **Variants**: for style variants, use `class-variance-authority` (`cva`) and expose `VariantProps<typeof ...>` on props.
+- **Forward refs**: use `React.forwardRef` for UI primitives that wrap native elements (Button, Input, etc.).
+
+## Styling rules (Tailwind v4)
+
+- **Prefer Tailwind utilities** over custom CSS.
+- **No inline styles** unless Figma requires a one-off value that cannot be represented cleanly via Tailwind utilities.
+- **No hardcoded hex colors** in components. If Figma provides specific colors that aren’t representable by Tailwind utilities:
+  - Prefer using existing Tailwind palette utilities (e.g. `bg-zinc-950`, `text-zinc-50`) when visually equivalent.
+  - Otherwise define CSS variables in `src/index.css` under `@layer base` and reference them (e.g. `bg-[hsl(var(--primary))]`).
+- **Dark mode**: support `dark:` classes when the design has light/dark variants.
+
+## Icons
+
+- **Preferred**: `lucide-react` icons.
+- **Do not install new icon libraries** unless explicitly requested.
+
+## Assets (images / SVG)
+
+- Store Figma-exported assets in `src/assets/figma/` (imported by components), unless an asset must be served statically; then use `public/assets/`.
+- Name assets with stable, readable names: `feature-element_state.svg`, `logo_mark.png`.
+
+## Figma MCP workflow (required for Figma-driven tasks)
+
+This workspace currently exposes these Figma MCP tools:
+- `get_figma_data` (structured node/layout/content)
+- `download_figma_images` (export PNG/SVG/GIF assets by node id)
+
+### Required flow
+
+1. Get the **Figma file key** (from a Figma URL) and the **node id** (if provided).
+2. Run `get_figma_data` with `fileKey` and the specific `nodeId` you are implementing.
+3. Identify what can be built from existing primitives in `src/components/ui/` before creating anything new.
+4. If the design includes image/SVG nodes, download them via `download_figma_images` into `src/assets/figma/` (use `localPath: "pep-web/src/assets/figma"`).
+5. Implement React + Tailwind code that matches the design, using this repo’s conventions above.
+6. Validate behavior states (hover/active/disabled/focus) and responsiveness.
+
+## Output expectations
+
+- New UI primitives must be reusable, typed, and follow the existing `Button` style.
+- Keep components small and composable; prefer composition over one giant component.
+- Accessibility is required: semantic elements, labels for inputs, and `aria-*` where appropriate.
+
