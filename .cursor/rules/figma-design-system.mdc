@@ -1,0 +1,79 @@
+---
+description: Rules for implementing Figma designs in pep-web (React + Tailwind + shadcn). Covers classification, tokens, component reuse, and Figma data workflow.
+globs: "pep-web/src/**/*.{ts,tsx,css}"
+alwaysApply: true
+---
+
+# PEP Web Library — Figma → Code Rules (Design System)
+
+These rules define how to translate Figma designs into the `pep-web` codebase.
+
+## Tech Stack (this repo)
+
+- **Framework**: React + TypeScript (Vite)
+- **Styling**: Tailwind CSS v4 (`@import "tailwindcss";`) + `shadcn/tailwind.css`
+- **Tokens**: CSS variables in `pep-web/src/index.css` (e.g. `--background`, `--radius`, `--elevation-sm`)
+- **UI components**: `pep-web/src/components/ui/*` (shadcn-style wrappers + project variants)
+- **Icons**: `lucide-react` (only when matching the design intent; prefer existing icons already used)
+- **Aliases**: `@/*` → `pep-web/src/*` (see `pep-web/tsconfig.json`, `pep-web/vite.config.ts`)
+
+## Critical Classification Rule: 框架優先 (Standard Shadcn first)
+
+- **If function + JSX structure matches shadcn**, it **must be `Standard Shadcn`**.
+  - Visual differences (radius/padding/border/shadow/colors) **do not** justify `Modified`.
+  - First try: **CSS variables in `pep-web/src/index.css`** and **Tailwind utilities**.
+- Only classify as **`Modified Shadcn`** when **JSX structure changes** (new slots/wrappers/nesting not present in the shadcn base).
+
+> This principle is codified in `.cursor/rules/figma-framework-first.mdc` and must be followed for every audit.
+
+## Component Reuse Rules (do not skip)
+
+- **Always reuse** existing components from:
+  - `pep-web/src/components/ui/`
+  - `pep-web/src/pages/figma-populated-custom-entries.tsx` helpers when updating the design-system page
+- Do **not** create a new component if a shadcn/base primitive already exists and only needs tokens/utilities.
+
+## Styling & Tokens (must follow)
+
+- **Never hardcode colors** when a semantic token exists.
+  - Use Tailwind semantic classes: `bg-background`, `text-foreground`, `border-input`, `ring-ring`, `text-muted-foreground`, etc.
+- **Radius**: prefer the tokenized scale (`--radius`, `--radius-md`, etc.) via Tailwind utilities like `rounded-lg`.
+- **Elevation**: use project tokens:
+  - Prefer `shadow-elevation-sm|md|lg` (mapped in `pep-web/src/index.css`)
+  - Avoid ad-hoc `shadow-md` when Figma uses a specific elevation token.
+
+## Figma Data Workflow (required)
+
+When implementing or auditing from Figma:
+
+1. Use the Figma MCP server tool `get_figma_data` with the **exact** `fileKey` and `nodeId` (when provided).
+2. Identify the Figma **component set properties** (e.g., “Value Type”, “Status”) and mirror them in naming.
+3. If assets/icons are needed and present in Figma, use `download_figma_images` and save into an app-appropriate directory (prefer `pep-web/public/assets/` or `pep-web/src/assets/` depending on usage).
+4. Only after steps (1)–(3), implement code and validate visual parity.
+
+### Figma reference (PEP Web Library)
+- File key: `bRDWHAITfr5p6onqnKTf0q`
+- Common audited frames: Value Types populated frame node id `5204:5055`
+
+## Design System Page Rules
+
+- The visual source of truth page is `pep-web/src/pages/design-system.tsx`.
+- Entries are defined in `pep-web/src/pages/figma-populated-custom-entries.tsx`.
+- Each Value Type row should:
+  - Include Figma index `#1–#24` in the card header
+  - Include “Value Type = …” in the name/description
+  - Prefer live previews with mock data from `pep-web/src/data/design-system-mock.ts`
+
+### Modified components must show Default vs PEP comparison
+
+- If an entry is categorized as `Modified Shadcn`, the design system page should show:
+  - **Default (shadcn)** implementation
+  - **PEP variant** implementation
+  - Both across states: Default / Hover / Disabled / Loading
+
+## Implementation Quality Bar
+
+- Accessibility: interactive controls need correct semantics (`button`, `input`, aria labels where needed).
+- Keep DOM simple: avoid redundant wrappers that double-shell components (e.g., wrapping `Input` in another bordered container).
+- Prefer small reusable helpers over copy-paste for repeated “Value Type” patterns.
+
