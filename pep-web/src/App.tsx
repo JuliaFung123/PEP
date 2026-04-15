@@ -3,9 +3,8 @@ import './App.css'
 import * as React from 'react'
 import { Moon, Sun } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
-import { cn } from '@/lib/utils'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 import { ThemeShowcase } from './pages/ThemeShowcase'
 import { InputTypePage } from './pages/InputTypePage'
@@ -72,35 +71,17 @@ function App() {
     <div className="min-h-svh bg-background text-foreground">
       <div className="sticky top-0 z-40 bg-background/80 backdrop-blur">
         <div className="mx-auto flex min-h-[var(--app-header-height)] w-full max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-3.5">
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              size="sm"
-              variant={page === 'theme' ? 'default' : 'secondary'}
-              onClick={() => navigate('theme')}
-              className={cn(page !== 'theme' && 'text-foreground')}
-            >
-              Theme
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={page === 'input-type' ? 'default' : 'secondary'}
-              onClick={() => navigate('input-type')}
-              className={cn(page !== 'input-type' && 'text-foreground')}
-            >
-              Input Type
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={page === 'filter' ? 'default' : 'secondary'}
-              onClick={() => navigate('filter')}
-              className={cn(page !== 'filter' && 'text-foreground')}
-            >
-              Filter
-            </Button>
-          </div>
+          <Tabs
+            value={page}
+            onValueChange={(v) => navigate(v as PreviewPage)}
+            className="flex items-center"
+          >
+            <TabsList>
+              <TabsTrigger value="theme">Theme</TabsTrigger>
+              <TabsTrigger value="input-type">Input Type</TabsTrigger>
+              <TabsTrigger value="filter">Filter</TabsTrigger>
+            </TabsList>
+          </Tabs>
           <div className="ml-auto flex items-center gap-2">
             <Sun className="size-4 text-muted-foreground" aria-hidden />
             <Switch

@@ -18,6 +18,7 @@ import * as React from 'react'
 
 import { EditFilterGroupDialog } from '@/components/edit-filter-group-dialog'
 import { NewFilterGroupDialog } from '@/components/new-filter-group-dialog'
+import { SaveFilterGroupDialog } from '@/components/save-filter-group-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
@@ -33,7 +34,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { Switch } from '@/components/ui/switch'
 import { inputSurfaceClassName } from '@/lib/input-surface-classes'
 import { cn } from '@/lib/utils'
 
@@ -88,22 +88,22 @@ export function FilterPage() {
     ...INITIAL_SAVED_FILTER_ROWS,
   ])
   const [selectedFilterId, setSelectedFilterId] = React.useState<string>('1')
-  const [saveAsNew, setSaveAsNew] = React.useState(true)
   const [draggingId, setDraggingId] = React.useState<string | null>(null)
   const [dragOverId, setDragOverId] = React.useState<string | null>(null)
   const [editFilterOpen, setEditFilterOpen] = React.useState(false)
   const [editingFilterId, setEditingFilterId] = React.useState<string | null>(null)
   const [newFilterOpen, setNewFilterOpen] = React.useState(false)
+  const [saveFilterOpen, setSaveFilterOpen] = React.useState(false)
 
   /** Nested filter dialogs portal outside the sheet; Radix can treat that as “outside” and close the sheet. */
   const childFilterDialogOpenRef = React.useRef(false)
   /** Ignore the next spurious sheet dismiss while opening a child dialog from inside the sheet. */
   const suppressNextSheetDismissRef = React.useRef(false)
   React.useEffect(() => {
-    const open = editFilterOpen || newFilterOpen
+    const open = editFilterOpen || newFilterOpen || saveFilterOpen
     childFilterDialogOpenRef.current = open
     if (open) suppressNextSheetDismissRef.current = false
-  }, [editFilterOpen, newFilterOpen])
+  }, [editFilterOpen, newFilterOpen, saveFilterOpen])
 
   const handleSheetOpenChange = React.useCallback((open: boolean) => {
     if (!open) {
@@ -122,7 +122,7 @@ export function FilterPage() {
       : (savedFilterRows.find((r) => r.id === editingFilterId)?.label ?? '')
 
   return (
-    <div className="mx-auto flex min-h-[calc(100svh-var(--app-header-height))] w-full max-w-5xl items-start px-6 py-12">
+    <div className="mx-auto flex h-[calc(100svh-var(--app-header-height))] w-full max-w-5xl items-stretch px-6 py-0">
       <Sheet open={filterSheetOpen} onOpenChange={handleSheetOpenChange} modal={false}>
         <SheetTrigger asChild>
           <Button type="button" variant="outline" className="gap-2">
@@ -337,53 +337,11 @@ export function FilterPage() {
                     })}
                     </div>
                   </ScrollArea>
-                  <div className="flex shrink-0 flex-col p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex min-w-0 items-center gap-3">
-                        <Switch
-                          checked={saveAsNew}
-                          onCheckedChange={setSaveAsNew}
-                          id="filter-save-as-new"
-                          size="sm"
-                        />
-                        <label
-                          htmlFor="filter-save-as-new"
-                          className="text-sm font-medium text-foreground"
-                        >
-                          Save as new
-                        </label>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="shrink-0 border-primary text-primary shadow-elevation-sm"
-                      >
-                        Save
-                      </Button>
-                    </div>
-                    <div
-                      className={cn(
-                        'grid overflow-hidden transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none',
-                        saveAsNew ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
-                      )}
-                    >
-                      <div className="min-h-0">
-                        <div className="mt-4">
-                          <Input
-                            placeholder="Name"
-                            className="w-full shadow-elevation-sm"
-                            disabled={!saveAsNew}
-                            tabIndex={saveAsNew ? undefined : -1}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </aside>
               ) : null}
 
               <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-                <div className="flex-1 space-y-4 overflow-auto p-5">
+                <div className="flex-1 space-y-4 overflow-hidden p-5">
                   <div className="space-y-2">
                     <div className="text-sm font-semibold text-foreground">
                       {'\u767c\u4f48\u6642\u9593'}
@@ -478,9 +436,29 @@ export function FilterPage() {
                 <SheetFooter className="bg-sidebar">
                   <div className="flex w-full items-center justify-center gap-6">
                     <Button type="button" variant="ghost" className="px-0 text-foreground">
-                      Clear All
+                      Clear all
                     </Button>
-                    <Button type="button" variant="default">
+                    <Button
+                      type="button"
+                      variant="Light"
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        suppressNextSheetDismissRef.current = true
+                        setSaveFilterOpen(true)
+                      }}
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="default"
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setFilterSheetOpen(false)
+                      }}
+                    >
                       Apply
                     </Button>
                   </div>
@@ -525,6 +503,27 @@ export function FilterPage() {
           const id = newSavedFilterId()
           setSavedFilterRows((rows) => [...rows, { id, label }])
           setSelectedFilterId(id)
+          setFilterSheetOpen(false)
+        }}
+      />
+
+      <SaveFilterGroupDialog
+        open={saveFilterOpen}
+        onOpenChange={setSaveFilterOpen}
+        onSave={(mode, name) => {
+          if (mode !== 'new') return
+          const label = name.trim().length > 0 ? `Activity table · ${name.trim()}` : 'Activity table · New preset'
+          const id = newSavedFilterId()
+          setSavedFilterRows((rows) => [...rows, { id, label }])
+          setSelectedFilterId(id)
+        }}
+        onSaveAndApply={(mode, name) => {
+          if (mode === 'new') {
+            const label = name.trim().length > 0 ? `Activity table · ${name.trim()}` : 'Activity table · New preset'
+            const id = newSavedFilterId()
+            setSavedFilterRows((rows) => [...rows, { id, label }])
+            setSelectedFilterId(id)
+          }
           setFilterSheetOpen(false)
         }}
       />
