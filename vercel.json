@@ -1,0 +1,6 @@
+{
+  "installCommand": "npm install --prefix pep-web",
+  "buildCommand": "npm run build --prefix pep-web",
+  "outputDirectory": "pep-web/dist",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
