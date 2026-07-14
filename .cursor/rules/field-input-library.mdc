@@ -1,0 +1,45 @@
+---
+description: Field / input library page workflow — §1 framework notes, §2 approved library, §3 pending inputs. Follow when building layouts with inputs or updating the Field preview page.
+globs: "pep-web/src/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Field input library (PEP Web)
+
+The **Field** preview page (`/preview/input-type`, sidebar label **Field**) is the single source of truth for field inputs. All layouts that include inputs must follow the three-section model below.
+
+## Page structure (`InputTypePage.tsx`)
+
+| Section | Purpose | Registry source |
+|--------|---------|-----------------|
+| **§1 Framework differences** | Programmer table: stock **shadcn** vs **PEP** overrides (height, elevation, hover/focus, shells). Describes §2 behaviour. | `FIELD_FRAMEWORK_DIFFERENCES` in `pep-web/src/data/field-input-registry.ts` |
+| **§2 Input library** | Approved value types — **always pick from here** when creating layouts. | `FIELD_INPUT_ROWS` where `tier: 'library'` |
+| **§3 New inputs (pending review)** | Prototypes not yet in the library. Use only when **no similar §2 input exists**. | `FIELD_INPUT_ROWS` where `tier: 'pending'` |
+
+## Layout rules (mandatory)
+
+1. **Before coding inputs in a layout**, read §1 on the Field page (or `FIELD_FRAMEWORK_DIFFERENCES` in the registry).
+2. **Pick the matching §2 row** by Figma Value Type name / behaviour (Text, Select, Date, Multi, field-group variants, etc.).
+3. **Compose** using existing primitives — `Input`, `Field`, `Button` + `inputSurfaceClassName`, `Calendar`, `Popover` — as shown in `InputTypePage.tsx` / `ValueTypeSurface`. Do **not** create parallel component files (e.g. `InputDate.tsx`) unless the user explicitly requests a new primitive.
+4. **If no §2 match exists**, implement against a §3 pending row for review. Do **not** ship to production layouts until the row is promoted to §2.
+5. **When promoting §3 → §2**: change `tier` to `'library'` in `field-input-registry.ts`, remove or archive `pendingNote`, and **add rows to `FIELD_FRAMEWORK_DIFFERENCES`** if the promotion introduces new PEP-vs-shadcn overrides.
+
+## Styling (from §1)
+
+- Shared chrome: `@/lib/input-surface-classes` → `inputSurfaceClassName`
+- Height: **`h-9` (36px)** — keep the shadcn New York input height
+- Elevation: no default field elevation; `hover:shadow-elevation-md`; focus removes elevation + ring
+- Select-like shells: `Button variant="outline"` + `inputSurfaceClassName` (not a separate Select file)
+- Semantic tokens only — no hardcoded hex
+
+## Files
+
+| File | Role |
+|------|------|
+| `pep-web/src/data/field-input-registry.ts` | §1 notes + §2/§3 row tiers |
+| `pep-web/src/pages/InputTypePage.tsx` | Field page UI + `ValueTypeSurface` compositions |
+| `pep-web/src/lib/input-surface-classes.ts` | Shared input chrome |
+
+## Future atom pages
+
+The same **§1 notes / §2 library / §3 pending** pattern will apply to other atom preview pages (Button, Badge, etc.). Mirror this registry + rule structure when those pages are added.

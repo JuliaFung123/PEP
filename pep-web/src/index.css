@@ -10,8 +10,15 @@
     color-scheme: light dark;
   }
 
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
   body {
     margin: 0;
+    overflow: hidden;
     @apply bg-background text-foreground;
   }
   * {
@@ -74,7 +81,8 @@
 }
 
 :root {
-  --app-header-height: 3.5rem;
+  /* Global top bar only; page title strip is per-page (`PepPageHeader`). Used for full-height layouts. */
+  --app-header-height: 4.25rem;
   /* Saved filter preset column inside filter sheet — grows with flex, caps here */
   --filter-saved-menu-max-width: 320px;
   --background: oklch(1 0 0);

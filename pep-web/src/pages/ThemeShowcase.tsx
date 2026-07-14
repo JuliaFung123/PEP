@@ -1,99 +1,16 @@
 import * as React from 'react'
-import type { ComponentProps } from 'react'
-import { Layers, Package, Palette, Plus, Ruler, Sparkles, Type } from 'lucide-react'
+import { Layers, Palette, Ruler, Sparkles } from 'lucide-react'
 
-import { Badge } from '@/components/ui/badge'
+import { PepDesignSystemPage } from '@/components/pep-chrome'
 import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
 } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Switch } from '@/components/ui/switch'
 import { ThemeCustomizer } from '@/components/theme/ThemeCustomizer'
 import { cn } from '@/lib/utils'
 
 type ThemeMode = 'light' | 'dark'
-
-type ButtonSize = NonNullable<ComponentProps<typeof Button>['size']>
-
-/** Text buttons: `button.tsx` CVA — px at 16px root where fixed */
-const BUTTON_TEXT_SPECS: {
-  token: string
-  size: ButtonSize
-  height: string
-  font: string
-  iconSvg: string
-}[] = [
-  {
-    token: 'default',
-    size: 'default',
-    height: 'h-8 · 2rem · 32px',
-    font: 'text-sm · 14px',
-    iconSvg: 'size-4 · 16px',
-  },
-  {
-    token: 'xs',
-    size: 'xs',
-    height: 'h-6 · 1.5rem · 24px',
-    font: 'text-xs · 12px',
-    iconSvg: 'size-3 · 12px',
-  },
-  {
-    token: 'sm',
-    size: 'sm',
-    height: 'h-7 · 1.75rem · 28px',
-    font: 'text-[0.8rem] · 12.8px',
-    iconSvg: 'size-3.5 · 14px',
-  },
-  {
-    token: 'lg',
-    size: 'lg',
-    height: 'h-9 · 2.25rem · 36px',
-    font: 'text-sm · 14px',
-    iconSvg: 'size-4 · 16px',
-  },
-]
-
-/** Icon-only — box + inherited base `text-sm`; per-size SVG overrides where set in CVA */
-const BUTTON_ICON_SPECS: {
-  token: string
-  size: ButtonSize
-  box: string
-  font: string
-  iconSvg: string
-}[] = [
-  { token: 'icon', size: 'icon', box: 'size-8 · 32×32px', font: 'text-sm · 14px (base)', iconSvg: 'size-4 · 16px' },
-  {
-    token: 'icon-xs',
-    size: 'icon-xs',
-    box: 'size-6 · 24×24px',
-    font: 'text-sm · 14px (base)',
-    iconSvg: 'size-3 · 12px',
-  },
-  {
-    token: 'icon-sm',
-    size: 'icon-sm',
-    box: 'size-7 · 28×28px',
-    font: 'text-sm · 14px (base)',
-    iconSvg: 'size-4 · 16px (base CVA)',
-  },
-  {
-    token: 'icon-lg',
-    size: 'icon-lg',
-    box: 'size-9 · 36×36px',
-    font: 'text-sm · 14px (base)',
-    iconSvg: 'size-4 · 16px',
-  },
-]
-
-const BUTTON_TEXT_SIZE_ROWS = BUTTON_TEXT_SPECS.map(({ token, size }) => ({ token, size }))
-const BUTTON_ICON_SIZE_ROWS = BUTTON_ICON_SPECS.map(({ token, size }) => ({ token, size }))
 
 const THEME_STORAGE_KEY = 'pep.theme'
 
@@ -109,35 +26,6 @@ function applyTheme(theme: ThemeMode) {
   document.documentElement.style.colorScheme = theme
 }
 
-function rgbCssToHslTriplet(rgb: string): string | null {
-  const m = rgb.match(/rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i)
-  if (!m) return null
-  const r = Number(m[1]) / 255
-  const g = Number(m[2]) / 255
-  const b = Number(m[3]) / 255
-  const max = Math.max(r, g, b)
-  const min = Math.min(r, g, b)
-  const l = (max + min) / 2
-  let h = 0
-  let s = 0
-  if (max !== min) {
-    const d = max - min
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
-    switch (max) {
-      case r:
-        h = ((g - b) / d + (g < b ? 6 : 0)) / 6
-        break
-      case g:
-        h = ((b - r) / d + 2) / 6
-        break
-      default:
-        h = ((r - g) / d + 4) / 6
-        break
-    }
-  }
-  return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`
-}
-
 type SemanticColor = {
   label: string
   cssVar: `--${string}`
@@ -147,6 +35,10 @@ type SemanticColor = {
   ringCssVar?: `--${string}`
   /** On fill swatches: show paired “on-” color (square + label), e.g. foreground on background */
   onPair?: { cssVar: `--${string}`; label: string }
+  /** Optional label to render inside the swatch, tinted by `textCssVar`. */
+  swatchTextLabel?: string
+  /** When `swatchTextLabel` is set, this color is applied to the text. */
+  textCssVar?: `--${string}`
 }
 
 const SEMANTIC_COLORS: SemanticColor[] = [
@@ -157,7 +49,6 @@ const SEMANTIC_COLORS: SemanticColor[] = [
     swatch: 'fill',
     onPair: { cssVar: '--foreground', label: 'Foreground' },
   },
-  { label: 'Foreground', cssVar: '--foreground', tailwindClass: 'text-foreground', swatch: 'foreground' },
   {
     label: 'Primary',
     cssVar: '--primary',
@@ -187,23 +78,11 @@ const SEMANTIC_COLORS: SemanticColor[] = [
     onPair: { cssVar: '--destructive-foreground', label: 'Destructive foreground' },
   },
   {
-    label: 'Destructive foreground',
-    cssVar: '--destructive-foreground',
-    tailwindClass: 'text-destructive-foreground',
-    swatch: 'foreground',
-  },
-  {
     label: 'Muted',
     cssVar: '--muted',
     tailwindClass: 'bg-muted',
     swatch: 'fill',
     onPair: { cssVar: '--muted-foreground', label: 'Muted foreground' },
-  },
-  {
-    label: 'Muted foreground',
-    cssVar: '--muted-foreground',
-    tailwindClass: 'text-muted-foreground',
-    swatch: 'foreground',
   },
   {
     label: 'Popover',
@@ -213,23 +92,11 @@ const SEMANTIC_COLORS: SemanticColor[] = [
     onPair: { cssVar: '--popover-foreground', label: 'Popover foreground' },
   },
   {
-    label: 'Popover foreground',
-    cssVar: '--popover-foreground',
-    tailwindClass: 'text-popover-foreground',
-    swatch: 'foreground',
-  },
-  {
     label: 'Card',
     cssVar: '--card',
     tailwindClass: 'bg-card',
     swatch: 'fill',
     onPair: { cssVar: '--card-foreground', label: 'Card foreground' },
-  },
-  {
-    label: 'Card foreground',
-    cssVar: '--card-foreground',
-    tailwindClass: 'text-card-foreground',
-    swatch: 'foreground',
   },
   { label: 'Border', cssVar: '--border', tailwindClass: 'border-border', swatch: 'border' },
   { label: 'Input', cssVar: '--input', tailwindClass: 'border-input', swatch: 'input' },
@@ -237,36 +104,29 @@ const SEMANTIC_COLORS: SemanticColor[] = [
 ]
 
 const SIDEBAR_COLORS: SemanticColor[] = [
-  { label: 'Sidebar', cssVar: '--sidebar', tailwindClass: 'bg-sidebar', swatch: 'fill' },
   {
-    label: 'Sidebar Foreground',
-    cssVar: '--sidebar-foreground',
-    tailwindClass: 'text-sidebar-foreground',
-    swatch: 'foreground',
+    label: 'Sidebar',
+    cssVar: '--sidebar',
+    tailwindClass: 'bg-sidebar',
+    swatch: 'fill',
+    swatchTextLabel: 'Sidebar foreground',
+    textCssVar: '--sidebar-foreground',
   },
   {
     label: 'Sidebar Primary',
     cssVar: '--sidebar-primary',
     tailwindClass: 'bg-sidebar-primary',
     swatch: 'fill',
-  },
-  {
-    label: 'Sidebar Primary Foreground',
-    cssVar: '--sidebar-primary-foreground',
-    tailwindClass: 'text-sidebar-primary-foreground',
-    swatch: 'foreground',
+    swatchTextLabel: 'Sidebar Primary',
+    textCssVar: '--sidebar-primary',
   },
   {
     label: 'Sidebar Accent',
     cssVar: '--sidebar-accent',
     tailwindClass: 'bg-sidebar-accent',
     swatch: 'fill',
-  },
-  {
-    label: 'Sidebar Accent Foreground',
-    cssVar: '--sidebar-accent-foreground',
-    tailwindClass: 'text-sidebar-accent-foreground',
-    swatch: 'foreground',
+    swatchTextLabel: 'Sidebar Accent',
+    textCssVar: '--sidebar-accent',
   },
   {
     label: 'Sidebar Border',
@@ -285,17 +145,11 @@ const SIDEBAR_COLORS: SemanticColor[] = [
 
 function ColorSwatch({ item }: { item: SemanticColor }) {
   const measureRef = React.useRef<HTMLDivElement>(null)
-  const [hsl, setHsl] = React.useState<string>('—')
   const [rawVar, setRawVar] = React.useState<string>('—')
 
   const paint = React.useCallback(() => {
     const root = getComputedStyle(document.documentElement)
     setRawVar(root.getPropertyValue(item.cssVar).trim() || '—')
-    const el = measureRef.current
-    if (!el) return
-    const bg = getComputedStyle(el).backgroundColor
-    const triplet = rgbCssToHslTriplet(bg)
-    setHsl(triplet ? `${triplet}` : bg || '—')
   }, [item.cssVar])
 
   React.useLayoutEffect(() => {
@@ -341,9 +195,8 @@ function ColorSwatch({ item }: { item: SemanticColor }) {
   return (
     <div className="overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm">
       <div className="flex flex-col gap-0.5 border-b px-3 py-1.5 leading-snug">
-        <div className="truncate text-sm font-medium leading-tight">{item.label}</div>
-        <code className="block break-all text-[11px] leading-snug text-foreground-emphasis-medium">{item.cssVar}</code>
-        <code className="block break-all text-[10px] leading-snug text-foreground-emphasis-low">{item.tailwindClass}</code>
+        <div className="truncate text-sm font-medium leading-tight">{item.cssVar}</div>
+        <div className="truncate text-[11px] leading-snug text-muted-foreground">{item.label}</div>
       </div>
       <div className="relative space-y-2 p-3">
         <div
@@ -367,48 +220,24 @@ function ColorSwatch({ item }: { item: SemanticColor }) {
                 {item.onPair.label}
               </span>
             </div>
+          ) : item.swatch === 'fill' && item.swatchTextLabel && item.textCssVar ? (
+            <div className="flex min-h-[88px] items-center justify-center px-3">
+              <span
+                className="text-sm font-semibold tracking-tight"
+                style={{ color: `var(${item.textCssVar})` }}
+              >
+                {item.swatchTextLabel}
+              </span>
+            </div>
           ) : null}
         </div>
-        <div className="space-y-0.5 text-[11px] text-foreground-emphasis-low">
-          <div>
-            <span className="font-medium text-foreground">HSL (computed)</span>{' '}
-            <code>{hsl}</code>
-          </div>
+        <div className="space-y-0.5 text-[11px] text-muted-foreground">
           <div>
             <span className="font-medium text-foreground">CSS value</span>{' '}
             <code className="break-all">{rawVar}</code>
           </div>
         </div>
       </div>
-    </div>
-  )
-}
-
-type TypeSample = { tag: string; className: string; label: string; children: React.ReactNode }
-
-function TypeRow({ sample }: { sample: TypeSample }) {
-  const ref = React.useRef<HTMLDivElement>(null)
-  const [info, setInfo] = React.useState('—')
-
-  React.useLayoutEffect(() => {
-    const el = ref.current?.firstElementChild as HTMLElement | null
-    if (!el) return
-    const cs = getComputedStyle(el)
-    const ff = cs.fontFamily.split(',')[0]?.trim() ?? cs.fontFamily
-    setInfo(`${ff} · ${cs.fontSize} / ${cs.lineHeight}`)
-  }, [sample.className, sample.tag])
-
-  const Tag = sample.tag as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'small'
-
-  return (
-    <div className="flex flex-col gap-1 rounded-lg border bg-card/50 px-3 py-2 sm:flex-row sm:items-baseline sm:justify-between">
-      <div className="min-w-0">
-        <div className="text-[11px] font-medium text-foreground-emphasis-low">{sample.label}</div>
-        <div ref={ref} className="mt-1">
-          <Tag className={sample.className}>{sample.children}</Tag>
-        </div>
-      </div>
-      <code className="shrink-0 text-[10px] text-foreground-emphasis-low sm:max-w-[45%] sm:text-right">{info}</code>
     </div>
   )
 }
@@ -782,30 +611,8 @@ export function ThemeShowcase() {
     window.localStorage.setItem(THEME_STORAGE_KEY, theme)
   }, [theme])
 
-  const typeSamples: TypeSample[] = [
-    { tag: 'h1', label: 'H1', className: 'scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl', children: 'Heading 1' },
-    { tag: 'h2', label: 'H2', className: 'scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0', children: 'Heading 2' },
-    { tag: 'h3', label: 'H3', className: 'scroll-m-20 text-2xl font-semibold tracking-tight', children: 'Heading 3' },
-    { tag: 'h4', label: 'H4', className: 'scroll-m-20 text-xl font-semibold tracking-tight', children: 'Heading 4' },
-    { tag: 'h5', label: 'H5', className: 'scroll-m-20 text-lg font-semibold tracking-tight', children: 'Heading 5' },
-    { tag: 'h6', label: 'H6', className: 'scroll-m-20 text-base font-semibold tracking-tight', children: 'Heading 6' },
-    { tag: 'p', label: 'Paragraph', className: 'leading-7 [&:not(:first-child)]:mt-6', children: 'Body text uses the theme foreground and sans stack from index.css / @theme.' },
-    { tag: 'small', label: 'Small', className: 'text-sm font-medium leading-none', children: 'Small caption' },
-    { tag: 'p', label: 'Muted', className: 'text-sm text-muted-foreground', children: 'Muted supporting text for descriptions and hints.' },
-  ]
-
   return (
-    <div className="mx-auto w-full max-w-5xl px-6 py-12">
-      <header className="mb-10 flex flex-col gap-4 border-b pb-8 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="font-heading text-3xl font-bold tracking-tight">Theme showcase</h1>
-          <p className="mt-2 max-w-xl text-sm text-foreground-emphasis-medium">
-            Light / dark, colors, typography, elevation, components, and spacing scales from{' '}
-            <code className="rounded bg-muted px-1 py-0.5 text-xs">src/index.css</code>.
-          </p>
-        </div>
-      </header>
-
+    <PepDesignSystemPage title="Theme showcase">
       <ThemeCustomizer theme={theme} />
 
       <section className="mb-14">
@@ -828,19 +635,6 @@ export function ThemeShowcase() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {SIDEBAR_COLORS.map((item) => (
             <ColorSwatch key={item.cssVar} item={item} />
-          ))}
-        </div>
-      </section>
-
-      <section className="mb-14">
-        <SectionHeader
-          icon={Type}
-          title="Typography"
-          description="H1–H6, body, small, muted — font metrics from getComputedStyle."
-        />
-        <div className="flex flex-col gap-2">
-          {typeSamples.map((s) => (
-            <TypeRow key={`${s.label}-${s.className}`} sample={s} />
           ))}
         </div>
       </section>
@@ -923,247 +717,6 @@ export function ThemeShowcase() {
         </div>
       </section>
 
-      <section className="mb-14">
-        <SectionHeader
-          icon={Package}
-          title="Components"
-          description="Buttons, badges, input, switch — they follow semantic colors and radius from the theme."
-        />
-        <Card>
-          <CardHeader>
-            <CardTitle>Preview</CardTitle>
-            <CardDescription className="!text-foreground-emphasis-low">
-              Tables list height, font, and default SVG sizes from <code className="text-xs">button.tsx</code> (px at
-              16px root). Then live previews, badge, input, and switch.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-6">
-            <div>
-              <div className="mb-2 text-xs font-medium text-foreground-emphasis-low">Button — text sizes (spec)</div>
-              <div className="overflow-x-auto rounded-lg border">
-                <table className="w-full min-w-[560px] text-left text-sm">
-                  <thead>
-                    <tr className="border-b bg-muted/50">
-                      <th className="px-3 py-2 font-medium">size</th>
-                      <th className="px-3 py-2 font-medium">Height</th>
-                      <th className="px-3 py-2 font-medium">Font</th>
-                      <th className="px-3 py-2 font-medium">Default icon (SVG)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {BUTTON_TEXT_SPECS.map((row) => (
-                      <tr key={row.token} className="border-b border-border/80 last:border-0">
-                        <td className="px-3 py-2 font-mono text-xs text-foreground-emphasis-medium">
-                          &quot;{row.token}&quot;
-                        </td>
-                        <td className="px-3 py-2 font-mono text-[11px] text-foreground">{row.height}</td>
-                        <td className="px-3 py-2 font-mono text-[11px] text-foreground">{row.font}</td>
-                        <td className="px-3 py-2 font-mono text-[11px] text-foreground">{row.iconSvg}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div>
-              <div className="mb-2 text-xs font-medium text-foreground-emphasis-low">Button — icon only (spec)</div>
-              <div className="overflow-x-auto rounded-lg border">
-                <table className="w-full min-w-[560px] text-left text-sm">
-                  <thead>
-                    <tr className="border-b bg-muted/50">
-                      <th className="px-3 py-2 font-medium">size</th>
-                      <th className="px-3 py-2 font-medium">Width × height</th>
-                      <th className="px-3 py-2 font-medium">Font (inherited)</th>
-                      <th className="px-3 py-2 font-medium">Default icon (SVG)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {BUTTON_ICON_SPECS.map((row) => (
-                      <tr key={row.token} className="border-b border-border/80 last:border-0">
-                        <td className="px-3 py-2 font-mono text-xs text-foreground-emphasis-medium">
-                          &quot;{row.token}&quot;
-                        </td>
-                        <td className="px-3 py-2 font-mono text-[11px] text-foreground">{row.box}</td>
-                        <td className="px-3 py-2 font-mono text-[11px] text-foreground">{row.font}</td>
-                        <td className="px-3 py-2 font-mono text-[11px] text-foreground">{row.iconSvg}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div className="space-y-3">
-              <div className="text-xs font-medium text-foreground-emphasis-low">Button — text sizes</div>
-              {BUTTON_TEXT_SIZE_ROWS.map(({ token, size }) => (
-                <div key={token} className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                  <code className="w-[7.5rem] shrink-0 font-mono text-xs text-foreground-emphasis-medium">
-                    size=&quot;{token}&quot;
-                  </code>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Button size={size} variant="default">
-                      Primary
-                    </Button>
-                    <Button size={size} variant="Light">
-                      Light
-                    </Button>
-                    <Button size={size} variant="secondary">
-                      Secondary
-                    </Button>
-                    <Button size={size} variant="destructive">
-                      Destructive
-                    </Button>
-                    <Button size={size} variant="outline">
-                      Outline
-                    </Button>
-                    <Button size={size} variant="ghost">
-                      Ghost
-                    </Button>
-                    <Button size={size} variant="link">
-                      Link
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="space-y-3">
-              <div className="text-xs font-medium text-foreground-emphasis-low">Button — icon only</div>
-              {BUTTON_ICON_SIZE_ROWS.map(({ token, size }) => (
-                <div key={token} className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                  <code className="w-[7.5rem] shrink-0 font-mono text-xs text-foreground-emphasis-medium">
-                    size=&quot;{token}&quot;
-                  </code>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Button size={size} variant="default" aria-label="Primary">
-                      <Plus />
-                    </Button>
-                    <Button size={size} variant="Light" aria-label="Light">
-                      <Plus />
-                    </Button>
-                    <Button size={size} variant="secondary" aria-label="Secondary">
-                      <Plus />
-                    </Button>
-                    <Button size={size} variant="destructive" aria-label="Destructive">
-                      <Plus />
-                    </Button>
-                    <Button size={size} variant="outline" aria-label="Outline">
-                      <Plus />
-                    </Button>
-                    <Button size={size} variant="ghost" aria-label="Ghost">
-                      <Plus />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Badge>Default</Badge>
-              <Badge variant="secondary">Secondary</Badge>
-              <Badge variant="outline">Outline</Badge>
-              <Badge variant="destructive">Destructive</Badge>
-            </div>
-            <div className="flex flex-col gap-4">
-              <div className="text-xs font-medium text-foreground-emphasis-low">Input</div>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="rounded-lg border bg-card/40 p-3">
-                  <div className="mb-2 text-[11px] font-medium text-foreground-emphasis-medium">Without label</div>
-                  <div className="grid gap-2">
-                    <div className="grid gap-1">
-                      <div className="text-[10px] text-foreground-emphasis-low">Enabled</div>
-                      <Input placeholder="Input" />
-                    </div>
-                    <div className="grid gap-1">
-                      <div className="text-[10px] text-foreground-emphasis-low">Disabled</div>
-                      <Input placeholder="Input" disabled />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-lg border bg-card/40 p-3">
-                  <div className="mb-2 text-[11px] font-medium text-foreground-emphasis-medium">With label</div>
-                  <div className="grid gap-2">
-                    <div className="grid gap-1.5">
-                      <label htmlFor="preview-input-label-enabled" className="text-sm font-medium text-foreground">
-                        Label
-                      </label>
-                      <Input id="preview-input-label-enabled" placeholder="Input" />
-                    </div>
-                    <div className="grid gap-1.5">
-                      <label
-                        htmlFor="preview-input-label-disabled"
-                        className="text-sm font-medium text-foreground opacity-50"
-                      >
-                        Label
-                      </label>
-                      <Input id="preview-input-label-disabled" placeholder="Input" disabled />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-lg border bg-card/40 p-3">
-                  <div className="mb-2 text-[11px] font-medium text-foreground-emphasis-medium">
-                    With label + helper
-                  </div>
-                  <div className="grid gap-2">
-                    <div className="grid gap-1.5">
-                      <label htmlFor="preview-input-helper-enabled" className="text-sm font-medium text-foreground">
-                        Label
-                      </label>
-                      <Input id="preview-input-helper-enabled" placeholder="Input" />
-                      <p className="text-xs text-foreground-emphasis-low">Helper text</p>
-                    </div>
-                    <div className="grid gap-1.5">
-                      <label
-                        htmlFor="preview-input-helper-disabled"
-                        className="text-sm font-medium text-foreground opacity-50"
-                      >
-                        Label
-                      </label>
-                      <Input id="preview-input-helper-disabled" placeholder="Input" disabled />
-                      <p className="text-xs text-foreground-emphasis-low">Helper text</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="text-xs font-medium text-foreground-emphasis-low">Tabs</div>
-                <Tabs defaultValue="account" className="w-full">
-                  <TabsList>
-                    <TabsTrigger value="account">Account</TabsTrigger>
-                    <TabsTrigger value="password">Password</TabsTrigger>
-                    <TabsTrigger value="billing">Billing</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="account">
-                    <div className="text-sm font-medium text-foreground">Account</div>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Default Tabs component preview.
-                    </p>
-                  </TabsContent>
-                  <TabsContent value="password">
-                    <div className="text-sm font-medium text-foreground">Password</div>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Focus the triggers to validate ring tokens.
-                    </p>
-                  </TabsContent>
-                  <TabsContent value="billing">
-                    <div className="text-sm font-medium text-foreground">Billing</div>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Active tab uses background + elevation token.
-                    </p>
-                  </TabsContent>
-                </Tabs>
-              </div>
-              <label className="flex cursor-pointer items-center gap-3 text-sm">
-                <Switch defaultChecked />
-                <span className="text-foreground-emphasis-low">Switch</span>
-              </label>
-            </div>
-          </CardContent>
-          <CardFooter className="text-xs text-foreground-emphasis-low">
-            Use Light / Dark in the header to verify tokens.
-          </CardFooter>
-        </Card>
-      </section>
-
       <section className="mb-6">
         <SectionHeader
           icon={Ruler}
@@ -1206,6 +759,6 @@ export function ThemeShowcase() {
           </Card>
         </div>
       </section>
-    </div>
+    </PepDesignSystemPage>
   )
 }

@@ -34,6 +34,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import { PepDesignSystemPage } from '@/components/pep-chrome'
 import { inputSurfaceClassName } from '@/lib/input-surface-classes'
 import { cn } from '@/lib/utils'
 
@@ -122,7 +123,12 @@ export function FilterPage() {
       : (savedFilterRows.find((r) => r.id === editingFilterId)?.label ?? '')
 
   return (
-    <div className="mx-auto flex h-[calc(100svh-var(--app-header-height))] w-full max-w-5xl items-stretch px-6 py-0">
+    <PepDesignSystemPage
+      title="Filter"
+      className="min-h-0 flex-1"
+      contentClassName="flex min-h-0 flex-1 flex-col pt-4 pb-4"
+    >
+      <div className="flex min-h-0 flex-1 flex-col items-stretch">
       <Sheet open={filterSheetOpen} onOpenChange={handleSheetOpenChange} modal={false}>
         <SheetTrigger asChild>
           <Button type="button" variant="outline" className="gap-2">
@@ -468,6 +474,7 @@ export function FilterPage() {
           </div>
         </SheetContent>
       </Sheet>
+      </div>
 
       <EditFilterGroupDialog
         open={editFilterOpen}
@@ -527,6 +534,6 @@ export function FilterPage() {
           setFilterSheetOpen(false)
         }}
       />
-    </div>
+    </PepDesignSystemPage>
   )
 }

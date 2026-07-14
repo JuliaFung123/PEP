@@ -1,58 +1,56 @@
 ---
 name: input-type-figma-preview
 description: >-
-  Builds and maintains the PEP "Input Type" preview page: all Figma Value Types as
-  rows, global label toggle, simulated interaction states, shadcn-only composition
-  with Tailwind/CSS (no duplicate component files), manifest of primitives and
-  styling notes, and links from the design-system preview. Use when implementing
-  or updating Input Type preview, Figma Value Type matrix, input shells with
-  Button/Badge/Switch, or routing to /preview/input-type.
+  Builds and maintains the PEP Field preview page (/preview/input-type): §1 shadcn-vs-PEP
+  programmer notes table, §2 approved input library, §3 pending new inputs, Figma Value Type
+  matrix rows, interaction states, shadcn-only composition with inputSurfaceClassName, and
+  field-input-registry.ts tiers. Use when implementing layouts with inputs, Field page updates,
+  or promoting pending inputs to the library.
 ---
 
-# Input Type — Figma preview (PEP Web Library)
+# Field — input library preview (PEP Web Library)
 
 ## Role
 
-Implement **one** preview surface (**Input Type**) that lists every **Value Type** from Figma (PEP Web Library, component set **4835:1600**) as **rows**, using **existing** `components/ui/*` primitives plus **Tailwind** and minimal **CSS-variable** tokens. **Do not** add parallel components (e.g. `InputDate.tsx`) unless the user explicitly escalates to Tier 5 / custom primitive.
+The **Field** page is the **input library** for PEP. Layouts must pick inputs from **§2**; §1 documents framework differences; §3 holds prototypes under review.
+
+## Three sections (required)
+
+1. **§1 Framework differences** — table (`FIELD_FRAMEWORK_DIFFERENCES`): shadcn vs PEP for programmers. Describes §2 library behaviour.
+2. **§2 Input library** — `tier: 'library'` rows in `field-input-registry.ts`. **Always use these** in layouts.
+3. **§3 New inputs (pending review)** — `tier: 'pending'` rows. Only when no §2 match; review before shipping. Promoting to §2 → update registry + §1 if new overrides appear.
 
 ## Canonical Figma
 
 - **Input without label:** `4628:1212` — https://www.figma.com/design/bRDWHAITfr5p6onqnKTf0q/--PEP-Web_Library?node-id=4628-1212  
 - **Input with label:** `5218:11852` — https://www.figma.com/design/bRDWHAITfr5p6onqnKTf0q/--PEP-Web_Library?node-id=5218-11852  
+- **Field matrix:** `2823:2009`
 - **`fileKey`:** `bRDWHAITfr5p6onqnKTf0q`
 
-## Page requirements
-
-1. **Title:** `Input Type` (preview header).
-2. **Rows:** Left column = **Figma Value Type** name (exact string from Figma, e.g. `Text`, `Date+time`, `checkbox-col`).
-3. **Global toggle (top):** **With label** vs **Without label** for **all** rows — use shadcn **`Switch`** + text; with-label shows **Label Text** + **Help Text** above each field (same copy as Figma defaults).
-4. **Global interaction (top):** One control set that drives **every** row simultaneously:
-   - Enabled (empty)  
-   - Hover (empty) — simulate with utilities (e.g. `shadow-elevation-md`), not a second tab  
-   - Focused (empty) — simulate with `ring-3` / `border-ring`  
-   - Enabled (filled) — read-only sample values  
-   - Hover (filled)  
-   - Focused (filled)  
-   - Disabled (empty) — `disabled` + opacity where needed  
-5. **Implementation rule:** Compose **`Input`**, **`Button`**, **`Badge`**, **`Switch`**, **`Card`**, native `<textarea>` only when it shares **`inputSurfaceClassName`** from `lib/input-surface-classes.ts` (no new wrapper component file). Prefer **outline `Button` + `inputSurfaceClassName`** for select-like shells.
-6. **Manifest (bottom):** Table listing each **shadcn** primitive used, import path, and **what was styled** (page-only Tailwind vs `index.css` tokens vs export from `input.tsx`).
-7. **Navigation:** Link **Input Type** from **`DesignSystemPage`** (`Input Type` → `/preview/input-type`); sub-nav bar shows **Input Type** next to Theme / Design system.
-
-## Code locations (`pep-web`)
+## Code locations
 
 | Area | Path |
 |------|------|
+| Registry (§1 notes + §2/§3 tiers) | `pep-web/src/data/field-input-registry.ts` |
 | Page | `pep-web/src/pages/InputTypePage.tsx` |
+| Layout rule | `.cursor/rules/field-input-library.mdc` |
 | Router / shell | `pep-web/src/App.tsx` (`/preview/input-type`) |
-| Design system links | `pep-web/src/pages/design-system.tsx` |
-| Shared field chrome | `pep-web/src/lib/input-surface-classes.ts` → `inputSurfaceClassName` |
+| Shared field chrome | `pep-web/src/lib/input-surface-classes.ts` |
+
+## Implementation rules
+
+- Compose **`Input`**, **`Button`**, **`Badge`**, **`Field`**, **`Calendar`**, **`Popover`** — no duplicate component files unless user escalates.
+- Select-like shells: **`Button variant="outline"` + `inputSurfaceClassName`**.
+- Interaction preview columns: Empty / Filled / Disable per row.
+- Promote §3 → §2: change `tier`, update `FIELD_FRAMEWORK_DIFFERENCES` when needed.
 
 ## Anti-patterns
 
-- New files like `components/input-select.tsx` for Figma parity — **avoid**; keep compositions in **`InputTypePage.tsx`**.
-- Toggling global `:root` to compare themes on this page — use **scoped** wrappers if needed (see **import-figma-component** skill).
-- Hardcoding one-off hex colors — use **semantic** Tailwind (`border-input`, `text-muted-foreground`, `shadow-elevation-*`).
+- Inventing one-off field chrome in layout pages instead of matching a §2 row.
+- Using §3 pending inputs in shipped layouts without promotion.
+- New files like `components/input-select.tsx` — keep compositions in `InputTypePage.tsx` until promoted.
 
 ## Reference
 
-Pair with **import-figma-component** (`.cursor/skills/import-figma-component/SKILL.md`) for tiering and MCP audit workflow.
+- `.cursor/rules/field-input-library.mdc` — layout workflow
+- `.cursor/rules/figma-design-system.mdc` — tokens and classification
