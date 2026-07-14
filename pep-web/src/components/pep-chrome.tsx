@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
-/** Top app bar — global search + utilities (PEP Figma “Top Bar”, e.g. node 126:5143). */
+/** Site header — global search + utilities (PEP Figma “Top Bar” / site header, e.g. node 126:5143). */
 export function PepTopBar({
   searchPlaceholder = "Placeholder",
   value,

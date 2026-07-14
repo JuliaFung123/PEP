@@ -1,4 +1,4 @@
-import { ClipboardList, Layers, Moon, Sun, type LucideIcon } from "lucide-react"
+import { Boxes, ClipboardList, Component, Layers, Moon, Sun, type LucideIcon } from "lucide-react"
 import * as React from "react"
 
 import {
@@ -14,10 +14,18 @@ import { cn } from "@/lib/utils"
 export type PreviewPage =
   | "theme"
   | "typography"
-  | "components"
+  | "site-header"
   | "buttons"
   | "badges"
   | "avatars"
+  | "tabs"
+  | "pagination"
+  | "radio-checkbox"
+  | "switch"
+  | "progress"
+  | "image-file"
+  | "hover-action"
+  | "steppers"
   | "sidebar"
   | "input-type"
   | "filter"
@@ -42,21 +50,43 @@ const SECTIONS: {
     items: [
       { id: "theme", label: "Theme" },
       { id: "typography", label: "Typography" },
-      { id: "components", label: "Components" },
-      { id: "buttons", label: "Buttons" },
-      { id: "badges", label: "Badges" },
-      { id: "avatars", label: "Avatars" },
-      { id: "sidebar", label: "Sidebar" },
-      { id: "input-type", label: "Field" },
-      { id: "filter", label: "Filter" },
     ],
   },
   {
+    id: "component",
+    label: "Component",
+    icon: Component,
+    defaultOpen: true,
+    items: [
+      { id: "avatars", label: "Avatars" },
+      { id: "badges", label: "Badges" },
+      { id: "buttons", label: "Buttons" },
+      { id: "input-type", label: "Field" },
+      { id: "hover-action", label: "Hover action" },
+      { id: "image-file", label: "Image / File" },
+      { id: "pagination", label: "Pagination" },
+      { id: "progress", label: "Progress" },
+      { id: "radio-checkbox", label: "Radio / Checkbox" },
+      { id: "sidebar", label: "Sidebar" },
+      { id: "steppers", label: "Steppers" },
+      { id: "switch", label: "Switch" },
+      { id: "tabs", label: "Tabs" },
+    ],
+  },
+  {
+    id: "block",
+    label: "Block",
+    icon: Boxes,
+    defaultOpen: true,
+    items: [{ id: "site-header", label: "Site header" }],
+  },
+  {
     id: "admin",
-    label: "Admin",
+    label: "Demo pages",
     icon: ClipboardList,
     defaultOpen: true,
     items: [
+      { id: "filter", label: "Filter" },
       { id: "activity-create", label: "新增活動" },
       { id: "orders", label: "Orders" },
       { id: "tasks", label: "Tasks" },

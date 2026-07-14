@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/table"
 
 const AVATAR_SIZES = [
+  { token: "xs", size: "xs" as const, heightPx: 20 },
   { token: "sm", size: "sm" as const, heightPx: 24 },
   { token: "default", size: "default" as const, heightPx: 32 },
   { token: "lg", size: "lg" as const, heightPx: 40 },
@@ -73,6 +74,7 @@ function AvatarWithNameRow({ size }: { size: AvatarSize }) {
     <div
       className={cn(
         "flex min-w-0 max-w-[14rem] items-center",
+        size === "xs" && "gap-1",
         size === "sm" && "gap-1.5",
         size === "default" && "gap-2",
         size === "lg" && "gap-2.5",
@@ -91,7 +93,7 @@ function AvatarWithNameRow({ size }: { size: AvatarSize }) {
             {AVATAR_IMAGES.shadcn.id}
           </p>
         ) : null}
-        {size !== "sm" ? (
+        {size !== "sm" && size !== "xs" ? (
           <p className={cn("truncate", typographyClassName(AVATAR_NAME_SUBTITLE_TYPOGRAPHY_ID))}>
             {AVATAR_IMAGES.shadcn.subtitle}
           </p>

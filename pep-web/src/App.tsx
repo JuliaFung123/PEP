@@ -7,10 +7,18 @@ import { PepTopBar } from '@/components/pep-chrome'
 
 import { ThemeShowcase } from './pages/ThemeShowcase'
 import { TypographyPage } from './pages/TypographyPage'
-import { ComponentsPage } from './pages/ComponentsPage'
+import { SiteHeaderPage } from './pages/SiteHeaderPage'
 import { ButtonsPage } from './pages/ButtonsPage'
 import { BadgesPage } from './pages/BadgesPage'
 import { AvatarsPage } from './pages/AvatarsPage'
+import { TabsPage } from './pages/TabsPage'
+import { PaginationPage } from './pages/PaginationPage'
+import { RadioCheckboxPage } from './pages/RadioCheckboxPage'
+import { SwitchPage } from './pages/SwitchPage'
+import { ProgressPage } from './pages/ProgressPage'
+import { ImageFilePage } from './pages/ImageFilePage'
+import { HoverActionPage } from './pages/HoverActionPage'
+import { SteppersPage } from './pages/SteppersPage'
 import { MainMenuPage } from './pages/MainMenuPage'
 import { InputTypePage } from './pages/InputTypePage'
 import { FilterPage } from './pages/FilterPage'
@@ -37,10 +45,18 @@ function pageFromPath(pathname: string): PreviewPage {
   if (pathname === '/preview/input-type' || pathname === '/preview/input') return 'input-type'
   if (pathname === '/preview/theme') return 'theme'
   if (pathname === '/preview/typography') return 'typography'
-  if (pathname === '/preview/components') return 'components'
+  if (pathname === '/preview/site-header' || pathname === '/preview/top-bar' || pathname === '/preview/components') return 'site-header'
   if (pathname === '/preview/buttons') return 'buttons'
   if (pathname === '/preview/badges') return 'badges'
   if (pathname === '/preview/avatars') return 'avatars'
+  if (pathname === '/preview/tabs') return 'tabs'
+  if (pathname === '/preview/pagination') return 'pagination'
+  if (pathname === '/preview/radio-checkbox' || pathname === '/preview/radio' || pathname === '/preview/checkbox') return 'radio-checkbox'
+  if (pathname === '/preview/switch') return 'switch'
+  if (pathname === '/preview/progress') return 'progress'
+  if (pathname === '/preview/image-file' || pathname === '/preview/image') return 'image-file'
+  if (pathname === '/preview/hover-action' || pathname === '/preview/hover-overlay' || pathname === '/preview/hover') return 'hover-action'
+  if (pathname === '/preview/steppers' || pathname === '/preview/stepper') return 'steppers'
   if (pathname === '/preview/sidebar') return 'sidebar'
   if (pathname === '/preview/filter') return 'filter'
   if (pathname === '/preview/admin/activity-create') return 'activity-create'
@@ -53,10 +69,18 @@ function pathFromPage(page: PreviewPage): string {
   if (page === 'input-type') return '/preview/input-type'
   if (page === 'theme') return '/preview/theme'
   if (page === 'typography') return '/preview/typography'
-  if (page === 'components') return '/preview/components'
+  if (page === 'site-header') return '/preview/site-header'
   if (page === 'buttons') return '/preview/buttons'
   if (page === 'badges') return '/preview/badges'
   if (page === 'avatars') return '/preview/avatars'
+  if (page === 'tabs') return '/preview/tabs'
+  if (page === 'pagination') return '/preview/pagination'
+  if (page === 'radio-checkbox') return '/preview/radio-checkbox'
+  if (page === 'switch') return '/preview/switch'
+  if (page === 'progress') return '/preview/progress'
+  if (page === 'image-file') return '/preview/image-file'
+  if (page === 'hover-action') return '/preview/hover-action'
+  if (page === 'steppers') return '/preview/steppers'
   if (page === 'sidebar') return '/preview/sidebar'
   if (page === 'filter') return '/preview/filter'
   if (page === 'activity-create') return '/preview/admin/activity-create'
@@ -127,14 +151,30 @@ function App() {
             <InputTypePage />
           ) : page === 'typography' ? (
             <TypographyPage />
-          ) : page === 'components' ? (
-            <ComponentsPage />
+          ) : page === 'site-header' ? (
+            <SiteHeaderPage />
           ) : page === 'buttons' ? (
             <ButtonsPage />
           ) : page === 'badges' ? (
             <BadgesPage />
           ) : page === 'avatars' ? (
             <AvatarsPage />
+          ) : page === 'tabs' ? (
+            <TabsPage />
+          ) : page === 'pagination' ? (
+            <PaginationPage />
+          ) : page === 'radio-checkbox' ? (
+            <RadioCheckboxPage />
+          ) : page === 'switch' ? (
+            <SwitchPage />
+          ) : page === 'progress' ? (
+            <ProgressPage />
+          ) : page === 'image-file' ? (
+            <ImageFilePage />
+          ) : page === 'hover-action' ? (
+            <HoverActionPage />
+          ) : page === 'steppers' ? (
+            <SteppersPage />
           ) : page === 'sidebar' ? (
             <MainMenuPage />
           ) : page === 'filter' ? (
