@@ -1,0 +1,9 @@
+{
+  "name": "pep",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix pep-web",
+    "build": "npm run build --prefix pep-web",
+    "preview": "npm run preview --prefix pep-web"
+  }
+}
