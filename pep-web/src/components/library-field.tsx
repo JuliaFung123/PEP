@@ -6,48 +6,103 @@ import {
   FieldDescription,
   FieldError,
   FieldLabel,
-  FieldLegend,
-  FieldSet,
 } from "@/components/ui/field"
 import { cn } from "@/lib/utils"
 import { typeToken } from "@/data/typography-tokens"
 
 /**
+ * PEP Field anatomy (matches Field library / Figma):
+ *
+ * Field
+ * ├─ Label
+ * ├─ Required
+ * ├─ Hints              → optional ⓘ tooltip; minor remarks about the field
+ * ├─ FieldDescription for Label
+ * ├─ Input Group
+ * ├─ Error
+ * └─ FieldDescription for value (shown only when filled)
+ */
+
+/** Join per-box messages into one FieldError (multi-input fields). */
+export function formatCombinedFieldErrors(messages: React.ReactNode[]) {
+  const parts = messages.filter((message) => message != null && message !== "")
+  if (parts.length === 0) return undefined
+  if (parts.length === 1) return parts[0]
+  return parts.join(", ")
+}
+
+/**
+ * Input Group — layout container inside every Field.
+ * Direct children must be §2 field controls (`data-slot="field-control"`), separators, or system slots.
+ * Never paint invalid ring/border here; aria-invalid belongs on each control surface.
+ */
+export function LibraryFieldInputGroup({
+  className,
+  children,
+}: {
+  className?: string
+  children: React.ReactNode
+}) {
+  return (
+    <div
+      data-slot="field-input-group"
+      className={cn("flex w-full min-w-0 flex-wrap items-start gap-1", className)}
+    >
+      {children}
+    </div>
+  )
+}
+
+/**
  * Field library shell (§2 on `/preview/input-type`).
- * Use this for labeled controls — do not invent page-local `gap-*` / description sizes.
+ * Always wraps controls in Input Group. Use `error` or `errors[]` for FieldError.
  */
 export function LibraryField({
   label,
-  description,
-  descriptionTop,
-  descriptionBottom,
-  error,
-  required,
+  /** Optional ⓘ tooltip — less important remarks / hints about the field. */
+  hints,
+  /** @deprecated Use `hints`. */
   info,
+  /** FieldDescription — explains the label (what this field is). Shorthand: `description`. */
+  descriptionTop,
+  description,
+  /** FieldDescription — explains the input value. Shown only when `filled` is true. */
+  descriptionBottom,
+  /** When true, `descriptionBottom` is visible (field has a value). */
+  filled,
+  error,
+  errors,
+  required,
   disabled,
   invalid,
   htmlFor,
   className,
+  inputGroupClassName,
   children,
 }: {
   label: React.ReactNode
-  /** Single helper under the label (layouts). */
-  description?: React.ReactNode
-  /** Field matrix: helper above the control. */
-  descriptionTop?: React.ReactNode
-  /** Field matrix: helper under the control / error. */
-  descriptionBottom?: React.ReactNode
-  error?: React.ReactNode
-  required?: boolean
+  hints?: string
   info?: string
+  descriptionTop?: React.ReactNode
+  description?: React.ReactNode
+  descriptionBottom?: React.ReactNode
+  filled?: boolean
+  error?: React.ReactNode
+  /** Merged into one FieldError via `formatCombinedFieldErrors`. */
+  errors?: React.ReactNode[]
+  required?: boolean
   disabled?: boolean
   invalid?: boolean
   htmlFor?: string
   className?: string
+  inputGroupClassName?: string
   children: React.ReactNode
 }) {
-  const hasError = Boolean(error) || invalid
-  const top = descriptionTop ?? description
+  const combinedError =
+    error ?? (errors?.length ? formatCombinedFieldErrors(errors) : undefined)
+  const hasError = Boolean(combinedError) || invalid
+  const hintTooltip = hints ?? info
+  const topDescription = descriptionTop ?? description
 
   return (
     <Field
@@ -55,124 +110,71 @@ export function LibraryField({
       data-invalid={hasError || undefined}
       data-disabled={disabled || undefined}
     >
-      <FieldLabel
-        htmlFor={htmlFor}
-        className={cn(
-          "items-center gap-1.5",
-          disabled && "pointer-events-none text-muted-foreground",
-        )}
+      <div
+        data-slot="field-label-row"
+        className="flex w-full min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0"
       >
-        {label}
-        {required ? <LibraryFieldRequiredMark disabled={disabled} /> : null}
-        {info ? <LibraryFieldInfoHint content={info} disabled={disabled} /> : null}
-      </FieldLabel>
-      {top ? <FieldDescription>{top}</FieldDescription> : null}
-      {children}
-      {error ? <FieldError className="px-2.5">{error}</FieldError> : null}
-      {descriptionBottom ? (
-        <FieldDescription>{descriptionBottom}</FieldDescription>
+        <FieldLabel
+          htmlFor={htmlFor}
+          className={cn(
+            "w-auto gap-0",
+            hasError && !disabled && "text-destructive",
+            disabled && "pointer-events-none text-muted-foreground",
+          )}
+        >
+          {label}
+        </FieldLabel>
+        {required ? (
+          <LibraryFieldRequiredMark disabled={disabled} />
+        ) : null}
+        {hintTooltip ? (
+          <LibraryFieldHints content={hintTooltip} disabled={disabled} />
+        ) : null}
+      </div>
+
+      {topDescription ? (
+        <FieldDescription data-slot="field-description-top" className="-mt-1">
+          {topDescription}
+        </FieldDescription>
+      ) : null}
+
+      <LibraryFieldInputGroup className={inputGroupClassName}>
+        {children}
+      </LibraryFieldInputGroup>
+
+      {combinedError ? <FieldError className="px-2.5">{combinedError}</FieldError> : null}
+
+      {filled && descriptionBottom ? (
+        <FieldDescription
+          data-slot="field-description-bottom"
+          className="mt-0"
+        >
+          {descriptionBottom}
+        </FieldDescription>
       ) : null}
     </Field>
   )
 }
 
-/**
- * One control inside a field-group row (FieldSet → FieldGroup → Field).
- * Each box owns its invalid ring + FieldError — never a shared group-level error.
- */
-export function LibraryFieldGroupItem({
-  error,
-  invalid,
-  className,
-  children,
-}: {
-  error?: React.ReactNode
-  invalid?: boolean
-  className?: string
-  children: React.ReactNode
-}) {
-  const hasError = Boolean(error) || invalid
-
-  return (
-    <Field
-      className={cn("min-w-0 gap-2", className)}
-      data-invalid={hasError || undefined}
-    >
-      {children}
-      {error ? <FieldError className="px-2.5">{error}</FieldError> : null}
-    </Field>
-  )
-}
-
-/** FieldSet shell matching Field library field-group rows. */
-export function LibraryFieldSet({
-  label,
-  description,
-  descriptionTop,
-  descriptionBottom,
-  error,
-  required,
-  info,
-  disabled,
-  invalid,
-  className,
-  children,
-}: {
-  label: React.ReactNode
-  description?: React.ReactNode
-  descriptionTop?: React.ReactNode
-  descriptionBottom?: React.ReactNode
-  error?: React.ReactNode
-  required?: boolean
-  info?: string
-  disabled?: boolean
-  invalid?: boolean
-  className?: string
-  children: React.ReactNode
-}) {
-  const hasError = Boolean(error) || invalid
-  const top = descriptionTop ?? description
-
-  return (
-    <FieldSet
-      className={cn("min-w-0 gap-2", className)}
-      data-invalid={hasError || undefined}
-      data-disabled={disabled || undefined}
-      disabled={disabled || undefined}
-    >
-      <FieldLegend
-        variant="label"
-        className={cn(
-          "mb-0 flex items-center gap-1.5",
-          hasError && !disabled && "text-destructive",
-          disabled && "pointer-events-none text-muted-foreground",
-        )}
-      >
-        {label}
-        {required ? <LibraryFieldRequiredMark disabled={disabled} /> : null}
-        {info ? <LibraryFieldInfoHint content={info} disabled={disabled} /> : null}
-      </FieldLegend>
-      {top ? <FieldDescription>{top}</FieldDescription> : null}
-      {children}
-      {error ? (
-        <FieldError className="px-2.5">{error}</FieldError>
-      ) : null}
-      {descriptionBottom ? (
-        <FieldDescription>{descriptionBottom}</FieldDescription>
-      ) : null}
-    </FieldSet>
-  )
+/** @deprecated Alias for `LibraryField` (Input Group is always used). */
+export function LibraryFieldSet(props: React.ComponentProps<typeof LibraryField>) {
+  return <LibraryField {...props} />
 }
 
 function LibraryFieldRequiredMark({ disabled }: { disabled?: boolean }) {
   return (
-    <span className={disabled ? "text-muted-foreground" : "text-destructive"} aria-hidden>
+    <span
+      data-slot="field-required"
+      className={disabled ? "text-muted-foreground" : "text-destructive"}
+      aria-hidden
+    >
       *
     </span>
   )
 }
 
-function LibraryFieldInfoHint({
+/** Hints — info icon with tooltip on hover/focus. */
+function LibraryFieldHints({
   content,
   disabled,
 }: {
@@ -180,7 +182,7 @@ function LibraryFieldInfoHint({
   disabled?: boolean
 }) {
   return (
-    <span className={cn("group/info relative inline-flex")}>
+    <span data-slot="field-hints" className="group/hints relative inline-flex">
       <button
         type="button"
         disabled={disabled}
@@ -192,7 +194,10 @@ function LibraryFieldInfoHint({
       {disabled ? null : (
         <span
           role="tooltip"
-          className={cn(typeToken("text-xs/normal"), "pointer-events-none absolute top-full left-1/2 z-20 mt-2 hidden w-52 -translate-x-1/2 rounded-md bg-popover px-3 py-2 leading-snug font-normal text-popover-foreground shadow-elevation-md ring-1 ring-border group-hover/info:block group-focus-within/info:block")}
+          className={cn(
+            typeToken("text-xs/normal"),
+            "pointer-events-none absolute top-full left-1/2 z-20 mt-2 hidden w-52 -translate-x-1/2 rounded-md bg-popover px-3 py-2 leading-snug font-normal text-popover-foreground shadow-elevation-md ring-1 ring-border group-hover/hints:block group-focus-within/hints:block",
+          )}
         >
           {content}
         </span>

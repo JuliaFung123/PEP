@@ -15,6 +15,18 @@ export const inputFocusRing =
   "focus:border-ring focus:ring-3 focus:ring-ring/50 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
 export const inputNoClickEffect =
   "active:bg-transparent active:translate-y-0 active:not-aria-[haspopup]:translate-y-0"
+/** Preserve `-translate-y-1/2` centering on press (do not pair with `inputNoClickEffect`). */
+export const inputTrailingIconClickEffect =
+  "active:bg-transparent active:-translate-y-1/2"
+/** Calendar / clock icon inside a relative input shell. */
+export const inputTrailingIconButtonClassName = cn(
+  "absolute top-1/2 right-2.5 -translate-y-1/2 rounded-sm p-0.5 text-muted-foreground/60",
+  "hover:bg-transparent hover:text-muted-foreground",
+  "focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+  "disabled:pointer-events-none disabled:opacity-50",
+  "aria-expanded:bg-transparent aria-expanded:shadow-none",
+  inputTrailingIconClickEffect,
+)
 export const inputNoHoverFill = "hover:bg-transparent"
 export const inputNoOpenFill = "aria-expanded:bg-transparent"
 export const inputOpenRing =

@@ -115,7 +115,7 @@ export function FieldMultiSelect({
 
   return (
     // Wrapper keeps Base UI focus-guard spans out of parent Field flex children.
-    <div className="w-full min-w-0">
+    <div data-slot="field-control" className="w-full min-w-0">
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger
           disabled={disabled}
@@ -203,7 +203,7 @@ export function FieldMultiImageSelect({
   const selectedOptions = options.filter((o) => selected.has(o.id))
 
   return (
-    <div className="w-full min-w-0">
+    <div data-slot="field-control" className="w-full min-w-0">
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger
           disabled={disabled}
@@ -285,7 +285,7 @@ export function FieldMultiAvatarSelect({
   const selectedPeople = FIELD_MULTI_AVATAR_OPTIONS.filter((p) => selected.has(p.id))
 
   return (
-    <div className="w-full min-w-0">
+    <div data-slot="field-control" className="w-full min-w-0">
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger
           disabled={disabled}

@@ -228,7 +228,10 @@ function StylePreview({ id }: { id: DropdownMenuStyleId }) {
       return (
         <LibraryField
           label="Multi"
-          description="Field library Multi — Light badges + DropdownMenuCheckboxItem."
+          filled
+          descriptionTop="Select multiple tags from a checkbox menu."
+          descriptionBottom="Value is a list of selected tag labels."
+          hints="Uses DropdownMenuCheckboxItem with Light badges."
         >
           <FieldMultiSelect />
         </LibraryField>
@@ -237,7 +240,10 @@ function StylePreview({ id }: { id: DropdownMenuStyleId }) {
       return (
         <LibraryField
           label="Multi Image"
-          description="Field library Multi Image — BadgeImage + leading thumbs."
+          filled
+          descriptionTop="Select multiple items shown with image badges."
+          descriptionBottom="Value includes image thumbnails in each badge."
+          hints="BadgeImage shows a leading thumb per selection."
         >
           <FieldMultiImageSelect />
         </LibraryField>
@@ -246,7 +252,10 @@ function StylePreview({ id }: { id: DropdownMenuStyleId }) {
       return (
         <LibraryField
           label="Multi Avatar"
-          description="Field library Multi Avatar — BadgeAvatar Outline + Avatar rows."
+          filled
+          descriptionTop="Select multiple people from an avatar list."
+          descriptionBottom="Value is a list of selected user names."
+          hints="BadgeAvatar Outline with avatar rows in the menu."
         >
           <FieldMultiAvatarSelect />
         </LibraryField>

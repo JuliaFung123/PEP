@@ -13,7 +13,7 @@ import {
   Trash2,
   XCircle,
 } from 'lucide-react'
-import { format } from 'date-fns'
+import { formatDisplayDate } from '@/lib/date-format'
 import * as React from 'react'
 
 import { EditFilterGroupDialog } from '@/components/edit-filter-group-dialog'
@@ -388,7 +388,7 @@ export function FilterPage() {
                           )}
                         >
                           <span className="truncate">
-                            {eventDate ? format(eventDate, 'MMM dd, yyyy') : 'Date'}
+                            {eventDate ? formatDisplayDate(eventDate) : 'Date'}
                           </span>
                           <CalendarIcon className="size-4 text-muted-foreground/60" aria-hidden />
                         </Button>

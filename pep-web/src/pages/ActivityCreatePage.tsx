@@ -17,7 +17,7 @@ import {
   FormsLayout,
   fullPagePopupDialogContentClassName,
 } from "@/components/forms-layout"
-import { LibraryField, LibraryFieldGroupItem, LibraryFieldSet } from "@/components/library-field"
+import { LibraryField } from "@/components/library-field"
 import { PepPopupHeader } from "@/components/pep-chrome"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -174,42 +174,31 @@ function GeneralForm() {
                   />
                 </LibraryField>
 
-                <LibraryFieldSet label="發佈時間" required>
-                  <div className="flex flex-wrap items-start gap-1">
-                    <LibraryFieldGroupItem className="min-w-[160px] flex-1">
-                      <FieldDate placeholder="日期" />
-                    </LibraryFieldGroupItem>
-                    <LibraryFieldGroupItem className="min-w-[120px] flex-1">
-                      <FieldTime />
-                    </LibraryFieldGroupItem>
-                  </div>
-                </LibraryFieldSet>
+                <LibraryField
+                  label="發佈時間"
+                  required
+                  inputGroupClassName="flex flex-wrap gap-1"
+                >
+                  <FieldDate placeholder="日期" className="min-w-[160px] flex-1" />
+                  <FieldTime className="min-w-[120px] flex-1" />
+                </LibraryField>
               </div>
 
-              <LibraryFieldSet
+              <LibraryField
                 className="max-w-2xl"
                 label="活動時間"
                 required
-                description="如果你用Timeslot, 活動時間會用Timeslot的總時段"
+                inputGroupClassName="grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_minmax(0,1fr)_minmax(0,1fr)] sm:items-start"
+                descriptionBottom="如果你用Timeslot, 活動時間會用Timeslot的總時段"
               >
-                <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_minmax(0,1fr)_minmax(0,1fr)] sm:items-start">
-                  <LibraryFieldGroupItem>
-                    <FieldDate placeholder="日期" />
-                  </LibraryFieldGroupItem>
-                  <LibraryFieldGroupItem>
-                    <FieldTime />
-                  </LibraryFieldGroupItem>
-                  <span className="hidden h-9 items-center self-start text-center text-muted-foreground sm:flex">
-                    ~
-                  </span>
-                  <LibraryFieldGroupItem>
-                    <FieldDate placeholder="日期" />
-                  </LibraryFieldGroupItem>
-                  <LibraryFieldGroupItem>
-                    <FieldTime />
-                  </LibraryFieldGroupItem>
-                </div>
-              </LibraryFieldSet>
+                <FieldDate placeholder="日期" />
+                <FieldTime />
+                <span className="hidden h-9 items-center self-start text-center text-muted-foreground sm:flex">
+                  ~
+                </span>
+                <FieldDate placeholder="日期" />
+                <FieldTime />
+              </LibraryField>
             </section>
 
             <section className="space-y-5 pt-1">

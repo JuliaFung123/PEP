@@ -5,11 +5,10 @@ import {
   ChevronRight,
   Check,
   Clock,
-  Info,
   Paperclip,
   XCircle,
 } from 'lucide-react'
-import { format } from 'date-fns'
+import { formatDisplayDate, formatDisplayDateRange } from '@/lib/date-format'
 import type { DateRange } from 'react-day-picker'
 
 import { Badge } from '@/components/ui/badge'
@@ -17,7 +16,7 @@ import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { inputSurfaceClassName, inputSurfaceInvalidClassName } from '@/lib/input-surface-classes'
+import { inputSurfaceClassName, inputSurfaceInvalidClassName, inputTrailingIconButtonClassName, inputTrailingIconClickEffect } from '@/lib/input-surface-classes'
 import {
   FIELD_FRAMEWORK_DIFFERENCES,
   FIELD_INPUT_SECTIONS,
@@ -26,16 +25,19 @@ import {
   type FieldInputId,
   type FieldInputRow,
 } from '@/data/field-input-registry'
-import { LibraryFieldGroupItem } from '@/components/library-field'
-import { PepDesignSystemPage } from '@/components/pep-chrome'
 import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-  FieldLegend,
-  FieldSet,
-} from '@/components/ui/field'
+  FieldDateBirth,
+  FieldDateRangeInputs,
+  FieldFileListEmpty,
+  FieldImageEmpty,
+  FieldSelect,
+  FieldCombobox,
+} from '@/components/field-library-controls'
+import { LibraryField } from '@/components/library-field'
+import { ImageFile } from '@/components/ui/image-file'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
+import { PepDesignSystemPage } from '@/components/pep-chrome'
 import {
   Table,
   TableBody,
@@ -48,7 +50,7 @@ import {
 import { cn } from '@/lib/utils'
 import { typeToken } from "@/data/typography-tokens"
 
-/** Field matrix frame — Value Types + FieldSet / FieldGroup (ignore readonly in Figma). */
+/** Field matrix frame — Value Types + Field anatomy (ignore readonly in Figma). */
 
 type ValueTypeId = FieldInputId
 
@@ -65,7 +67,62 @@ const INTERACTION_OPTIONS: { key: InteractionKey; label: string }[] = [
   { key: 'error', label: 'Error' },
 ]
 
+type FieldAnatomyOptions = {
+  showDescriptionTop: boolean
+  showRequired: boolean
+  showHints: boolean
+  showDescriptionBottom: boolean
+}
+
+const DEFAULT_FIELD_ANATOMY: FieldAnatomyOptions = {
+  showDescriptionTop: true,
+  showRequired: true,
+  showHints: true,
+  showDescriptionBottom: true,
+}
+
+function FieldAnatomySwitches({
+  value,
+  onChange,
+}: {
+  value: FieldAnatomyOptions
+  onChange: (next: FieldAnatomyOptions) => void
+}) {
+  const rows: { id: string; key: keyof FieldAnatomyOptions; label: string }[] = [
+    { id: 'field-anatomy-desc-label', key: 'showDescriptionTop', label: 'FieldDescription for Label' },
+    { id: 'field-anatomy-required', key: 'showRequired', label: 'Required' },
+    { id: 'field-anatomy-hints', key: 'showHints', label: 'Hints' },
+    {
+      id: 'field-anatomy-desc-value',
+      key: 'showDescriptionBottom',
+      label: 'FieldDescription for value',
+    },
+  ]
+
+  return (
+    <div className="mb-4 flex flex-wrap items-center gap-x-6 gap-y-3">
+      {rows.map(({ id, key, label }) => (
+        <div key={id} className="flex items-center gap-2">
+          <Switch
+            id={id}
+            checked={value[key]}
+            onCheckedChange={(checked) => onChange({ ...value, [key]: checked })}
+            aria-label={label}
+          />
+          <Label htmlFor={id} className={cn(typeToken('text-xs/normal'), 'text-muted-foreground')}>
+            {label}
+          </Label>
+        </div>
+      ))}
+      <span className={cn(typeToken('text-xs/normal'), 'text-muted-foreground')}>
+        Value description shows in Filled and Error columns only.
+      </span>
+    </div>
+  )
+}
+
 const SAMPLE_TEXT = 'Input value'
+const DEMO_IMAGE_SRC = '/assets/figma/image-file/sample.png'
 /** Filled Text column — matches PEP Web Library row reference (Figma 5358:9880). */
 const TEXT_FILLED_EXAMPLE = 'Example Value'
 const SAMPLE_TEXTAREA = 'Longer sample value for textarea fields.'
@@ -89,10 +146,6 @@ const INPUT_NO_OPEN_FILL = 'aria-expanded:bg-transparent'
 const INPUT_OPEN_RING =
   'aria-expanded:border-ring aria-expanded:ring-3 aria-expanded:ring-ring/50 aria-expanded:shadow-none'
 
-/** Invalid chrome on a single surface owner — never paint a ring on a multi-input group wrapper. */
-const INPUT_INVALID_CHROME =
-  '[&_[data-slot=input]]:border-destructive [&_[data-slot=input]]:shadow-none [&_[data-slot=input]]:ring-3 [&_[data-slot=input]]:ring-destructive/20 [&_[data-slot=button]]:border-destructive [&_[data-slot=button]]:shadow-none [&_[data-slot=button]]:ring-3 [&_[data-slot=button]]:ring-destructive/20 [&>textarea]:border-destructive [&>textarea]:shadow-none [&>textarea]:ring-3 [&>textarea]:ring-destructive/20'
-
 // Back-compat aliases (keep changes localized; remove later if desired)
 const HOVER_ELEVATION_MD = `${INPUT_HOVER_ELEVATION_MD} ${INPUT_FOCUS_NO_ELEVATION}`
 const HOVER_BG_TRANSPARENT = `${INPUT_NO_HOVER_FILL} ${INPUT_NO_OPEN_FILL} active:bg-transparent`
@@ -100,15 +153,11 @@ const FOCUS_RING = INPUT_FOCUS_RING
 
 /** Demo date when “filled” interaction is selected (Apr 14, 2026). */
 const DEMO_DATE = new Date(2026, 3, 14)
+/** Date of birth filled demo (Jun 15, 1990). */
+const DEMO_BIRTH_DATE = new Date(1990, 5, 15)
 /** DatetimeRange row — Figma 5329:9597 (start / end). */
 const DEMO_DATETIME_RANGE_START_DATE = new Date(2026, 3, 1)
 const DEMO_DATETIME_RANGE_END_DATE = new Date(2026, 3, 30)
-
-function formatDateRangeLabel(range: DateRange | undefined) {
-  if (!range?.from) return 'Pick a date range'
-  if (!range.to) return format(range.from, 'LLL dd, y')
-  return `${format(range.from, 'LLL dd, y')} - ${format(range.to, 'LLL dd, y')}`
-}
 
 const MULTI_OPTIONS = [
   'Design',
@@ -167,7 +216,7 @@ function PreviewDatePicker({
             className,
           )}
         >
-          <span className="min-w-0 truncate">{date ? format(date, 'PPP') : 'Pick a date'}</span>
+          <span className="min-w-0 truncate">{date ? formatDisplayDate(date) : 'Pick a date'}</span>
           <CalendarIcon className="size-4 shrink-0 text-muted-foreground opacity-60" aria-hidden />
         </Button>
       </PopoverTrigger>
@@ -184,6 +233,64 @@ function PreviewDatePicker({
         />
       </PopoverContent>
     </Popover>
+  )
+}
+
+function PreviewDateBirthPicker({
+  disabled,
+  filled,
+  className,
+  invalid,
+}: {
+  disabled: boolean
+  filled: boolean
+  className?: string
+  invalid?: boolean
+}) {
+  const [date, setDate] = React.useState<Date | undefined>(undefined)
+
+  React.useEffect(() => {
+    setDate(filled ? DEMO_BIRTH_DATE : undefined)
+  }, [filled])
+
+  return (
+    <FieldDateBirth
+      value={date}
+      onValueChange={setDate}
+      disabled={disabled}
+      invalid={invalid}
+      placeholder="Select date of birth"
+      className={className}
+    />
+  )
+}
+
+function PreviewDateRangeInputs({
+  disabled,
+  filled,
+  invalid,
+}: {
+  disabled: boolean
+  filled: boolean
+  invalid?: boolean
+}) {
+  const [range, setRange] = React.useState<DateRange | undefined>(undefined)
+
+  React.useEffect(() => {
+    setRange(
+      filled
+        ? { from: DEMO_DATETIME_RANGE_START_DATE, to: DEMO_DATETIME_RANGE_END_DATE }
+        : undefined,
+    )
+  }, [filled])
+
+  return (
+    <FieldDateRangeInputs
+      value={range}
+      onValueChange={setRange}
+      disabled={disabled}
+      invalid={invalid}
+    />
   )
 }
 
@@ -230,7 +337,7 @@ function PreviewDateRangePicker({
             invalid && !disabled && inputSurfaceInvalidClassName,
           )}
         >
-          <span className="min-w-0 truncate">{formatDateRangeLabel(range)}</span>
+          <span className="min-w-0 truncate">{formatDisplayDateRange(range)}</span>
           <CalendarIcon className="size-4 shrink-0 text-muted-foreground opacity-60" aria-hidden />
         </Button>
       </PopoverTrigger>
@@ -291,12 +398,7 @@ function PreviewTimePicker({
       />
       <button
         type="button"
-        className={cn(
-          'absolute right-2.5 top-1/2 -translate-y-1/2 rounded-sm p-0.5 text-muted-foreground/60',
-          'hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
-          'disabled:pointer-events-none',
-          INPUT_NO_CLICK_EFFECT,
-        )}
+        className={inputTrailingIconButtonClassName}
         aria-label="Open time picker"
         disabled={disabled}
         onClick={() => {
@@ -325,76 +427,9 @@ const PEOPLE = [
   { id: 'rt', name: 'Ravi Tan', initials: 'RT' },
 ] as const
 
-function PreviewSelectMenu({
-  disabled,
-  filled,
-  placeholder = 'Select a fruit',
-}: {
-  disabled: boolean
-  filled: boolean
-  placeholder?: string
-}) {
-  const [value, setValue] = React.useState<string>('')
-  const [open, setOpen] = React.useState(false)
-
-  React.useEffect(() => {
-    setValue(filled ? 'Apple' : '')
-  }, [filled])
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          disabled={disabled}
-          className={cn(
-            inputSurfaceClassName,
-            'h-9 max-w-full justify-between gap-2 font-normal',
-            !value && 'text-muted-foreground',
-            INPUT_HOVER_ELEVATION_MD,
-            INPUT_FOCUS_NO_ELEVATION,
-            INPUT_FOCUS_RING,
-            INPUT_NO_HOVER_FILL,
-            INPUT_NO_OPEN_FILL,
-            INPUT_NO_CLICK_EFFECT,
-            // Keep ring visible while popover is open (Radix sets aria-expanded=true on trigger).
-            'aria-expanded:border-ring aria-expanded:ring-3 aria-expanded:ring-ring/50 aria-expanded:shadow-none',
-          )}
-        >
-          <span className="min-w-0 truncate">{value || placeholder}</span>
-          <ChevronDown className="size-4 shrink-0 opacity-60" aria-hidden />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-64 p-1" align="start">
-        <div className="py-1" role="listbox" aria-label="Select a fruit">
-          {FRUITS.map((fruit) => (
-            <button
-              key={fruit}
-              type="button"
-              role="option"
-              aria-selected={value === fruit}
-              className={cn(
-                'flex w-full items-center justify-between rounded-md px-2 py-1.5 text-sm',
-                'hover:bg-muted focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
-                value === fruit ? 'bg-muted text-foreground' : 'text-foreground',
-              )}
-              onClick={() => {
-                setValue(fruit)
-                setOpen(false)
-              }}
-            >
-              <span>{fruit}</span>
-              {value === fruit ? (
-                <span className={cn(typeToken("text-xs/medium"), "text-muted-foreground")}>Selected</span>
-              ) : null}
-            </button>
-          ))}
-        </div>
-      </PopoverContent>
-    </Popover>
-  )
-}
+/** Invalid chrome on each control surface — never on Input Group. */
+const previewInvalidClass = (invalid?: boolean, disabled?: boolean) =>
+  invalid && !disabled ? inputSurfaceInvalidClassName : undefined
 
 function AvatarOptionRow({
   label,
@@ -421,9 +456,13 @@ function AvatarOptionRow({
 function PreviewSelectAvatar({
   disabled,
   filled,
+  invalid,
+  className,
 }: {
   disabled: boolean
   filled: boolean
+  invalid?: boolean
+  className?: string
 }) {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState<(typeof PEOPLE)[number] | null>(null)
@@ -439,15 +478,18 @@ function PreviewSelectAvatar({
           type="button"
           variant="outline"
           disabled={disabled}
+          aria-invalid={invalid || undefined}
           className={cn(
             inputSurfaceClassName,
-            'h-9 max-w-full justify-between gap-2 font-normal',
+            'h-9 w-full max-w-full justify-between gap-2 font-normal',
             !value && 'text-muted-foreground',
             HOVER_ELEVATION_MD,
             HOVER_BG_TRANSPARENT,
             FOCUS_RING,
             INPUT_NO_CLICK_EFFECT,
             INPUT_OPEN_RING,
+            previewInvalidClass(invalid, disabled),
+            className,
           )}
         >
           <span className="flex min-w-0 items-center gap-2">
@@ -492,7 +534,17 @@ function PreviewSelectAvatar({
   )
 }
 
-function PreviewMultiSelect({ disabled, filled }: { disabled: boolean; filled: boolean }) {
+function PreviewMultiSelect({
+  disabled,
+  filled,
+  invalid,
+  className,
+}: {
+  disabled: boolean
+  filled: boolean
+  invalid?: boolean
+  className?: string
+}) {
   const [open, setOpen] = React.useState(false)
   const [selected, setSelected] = React.useState<Set<(typeof MULTI_OPTIONS)[number]>>(() => new Set())
 
@@ -522,15 +574,18 @@ function PreviewMultiSelect({ disabled, filled }: { disabled: boolean; filled: b
           disabled={disabled}
           aria-haspopup="listbox"
           aria-expanded={open}
+          aria-invalid={invalid || undefined}
           className={cn(
             inputSurfaceClassName,
-            'h-auto min-h-9 max-w-full flex-wrap justify-between gap-1 py-1 font-normal',
+            'h-auto min-h-9 w-full max-w-full flex-wrap justify-between gap-1 py-1 font-normal',
             'aria-expanded:bg-transparent',
             HOVER_ELEVATION_MD,
             HOVER_BG_TRANSPARENT,
             FOCUS_RING,
             INPUT_NO_CLICK_EFFECT,
             INPUT_OPEN_RING,
+            previewInvalidClass(invalid, disabled),
+            className,
           )}
         >
           <span className="flex flex-wrap items-center gap-1">
@@ -580,9 +635,13 @@ function PreviewMultiSelect({ disabled, filled }: { disabled: boolean; filled: b
 function PreviewMultiAvatar({
   disabled,
   filled,
+  invalid,
+  className,
 }: {
   disabled: boolean
   filled: boolean
+  invalid?: boolean
+  className?: string
 }) {
   const [open, setOpen] = React.useState(false)
   const [selected, setSelected] = React.useState<string[]>([])
@@ -600,14 +659,17 @@ function PreviewMultiAvatar({
           type="button"
           variant="outline"
           disabled={disabled}
+          aria-invalid={invalid || undefined}
           className={cn(
             inputSurfaceClassName,
-            'h-auto min-h-9 max-w-full flex-wrap justify-between gap-1 py-1 font-normal',
+            'h-auto min-h-9 w-full max-w-full flex-wrap justify-between gap-1 py-1 font-normal',
             HOVER_ELEVATION_MD,
             HOVER_BG_TRANSPARENT,
             FOCUS_RING,
             INPUT_NO_CLICK_EFFECT,
             INPUT_OPEN_RING,
+            previewInvalidClass(invalid, disabled),
+            className,
           )}
         >
           <span className="flex flex-wrap items-center gap-1">
@@ -672,9 +734,13 @@ function PreviewMultiAvatar({
 function PreviewAvatarGroup({
   disabled,
   filled,
+  invalid,
+  className,
 }: {
   disabled: boolean
   filled: boolean
+  invalid?: boolean
+  className?: string
 }) {
   const [open, setOpen] = React.useState(false)
   const [selected, setSelected] = React.useState<string[]>([])
@@ -692,9 +758,10 @@ function PreviewAvatarGroup({
           type="button"
           variant="outline"
           disabled={disabled}
+          aria-invalid={invalid || undefined}
           className={cn(
             inputSurfaceClassName,
-            'flex h-9 max-w-full items-center justify-between gap-2 py-0 pr-2 pl-1',
+            'flex h-9 w-full max-w-full items-center justify-between gap-2 py-0 pr-2 pl-1',
             typeToken("text-base/normal"),
             "md:text-sm",
             HOVER_ELEVATION_MD,
@@ -702,6 +769,8 @@ function PreviewAvatarGroup({
             FOCUS_RING,
             INPUT_NO_CLICK_EFFECT,
             INPUT_OPEN_RING,
+            previewInvalidClass(invalid, disabled),
+            className,
           )}
         >
           {selectedPeople.length ? (
@@ -819,7 +888,7 @@ function PreviewTextField({
           size="icon"
           className={cn(
             'absolute right-0.5 top-1/2 size-8 shrink-0 -translate-y-1/2 rounded-md text-muted-foreground',
-            INPUT_NO_CLICK_EFFECT,
+            inputTrailingIconClickEffect,
           )}
           aria-label="Clear value"
           onClick={() => setCleared(true)}
@@ -850,8 +919,9 @@ function PreviewTextField({
   )
 }
 
-function previewFieldGroupError(fieldLabel: string, invalid?: boolean) {
-  return invalid ? `Error text for ${fieldLabel}` : undefined
+function previewCombinedFieldError(labels: string[], invalid?: boolean): string | undefined {
+  if (!invalid) return undefined
+  return labels.map((label) => `Error text for ${label}`).join(', ')
 }
 
 function ValueTypeSurface({
@@ -864,51 +934,29 @@ function ValueTypeSurface({
   /** When set, marks the control invalid (e.g. paired with FieldError). */
   invalid?: boolean
 }) {
-  const { disabled, filled, wrapClassName } = usePreviewChrome(interaction)
+  const { disabled, filled } = usePreviewChrome(interaction)
   const ph = filled ? undefined : 'Placeholder'
   const textVal = filled ? SAMPLE_TEXT : ''
   const areaVal = filled ? SAMPLE_TEXTAREA : ''
-
-  const fieldGroupItem = (
-    fieldLabel: string,
-    className: string,
-    control: React.ReactNode,
-  ) => (
-    <LibraryFieldGroupItem
-      className={className}
-      invalid={invalid}
-      error={previewFieldGroupError(fieldLabel, invalid)}
-    >
-      {control}
-    </LibraryFieldGroupItem>
-  )
-
-  const shell = (node: React.ReactNode, options?: { skipInvalidChrome?: boolean }) => (
-    <div
-      className={cn(
-        'w-full max-w-full',
-        wrapClassName,
-        invalid && !options?.skipInvalidChrome && INPUT_INVALID_CHROME,
-      )}
-    >
-      {node}
-    </div>
-  )
+  const controlWidth = 'w-full max-w-full min-w-0'
 
   switch (id) {
     case 'text':
-      return shell(<PreviewTextField interaction={interaction} invalid={invalid} />)
+      return <PreviewTextField interaction={interaction} invalid={invalid} />
     case 'language':
-      /* Reference: `text` surface + EN prefix. */
-      return shell(
+      return (
         <div
+          data-slot="field-control"
+          aria-invalid={invalid || undefined}
           className={cn(
             inputSurfaceClassName,
+            controlWidth,
             'flex items-center gap-2',
             'focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50',
             HOVER_ELEVATION_MD,
             FOCUS_RING,
             disabled && 'pointer-events-none bg-input/50 opacity-50 shadow-none dark:bg-input/80',
+            previewInvalidClass(invalid, disabled),
           )}
         >
           <span className={cn(typeToken("text-sm/bold"), "shrink-0 select-none tabular-nums text-muted-foreground")}>
@@ -922,19 +970,22 @@ function ValueTypeSurface({
             aria-readonly={filled ? true : undefined}
             className="h-auto min-h-0 min-w-0 flex-1 border-0 bg-transparent px-0 py-0 shadow-none hover:shadow-none focus-visible:ring-0"
           />
-        </div>,
+        </div>
       )
     case 'textarea-language':
-      /* Reference: `textarea` surface + EN prefix. */
-      return shell(
+      return (
         <div
+          data-slot="field-control"
+          aria-invalid={invalid || undefined}
           className={cn(
             inputSurfaceClassName,
+            controlWidth,
             'flex h-auto items-start gap-2 py-2',
             'focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50',
             HOVER_ELEVATION_MD,
             FOCUS_RING,
             disabled && 'pointer-events-none bg-input/50 opacity-50 shadow-none dark:bg-input/80',
+            previewInvalidClass(invalid, disabled),
           )}
         >
           <span className={cn(typeToken("text-sm/bold"), "shrink-0 select-none tabular-nums text-muted-foreground")}>
@@ -948,59 +999,112 @@ function ValueTypeSurface({
             rows={3}
             className={cn(typeToken("text-sm/normal"), "min-h-20 w-0 min-w-0 flex-1 resize-y border-0 bg-transparent p-0 leading-normal shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0")}
           />
-        </div>,
+        </div>
       )
     case 'textarea':
-      return shell(
+      return (
         <textarea
+          data-slot="field-control"
           placeholder={ph}
           value={areaVal}
           readOnly
           disabled={disabled}
+          aria-invalid={invalid || undefined}
           rows={3}
           className={cn(
             inputSurfaceClassName,
             'min-h-20 max-w-full resize-y py-2',
             HOVER_ELEVATION_MD,
             FOCUS_RING,
+            previewInvalidClass(invalid, disabled),
           )}
-        />,
+        />
       )
     case 'date':
-      return shell(<PreviewDatePicker disabled={disabled} filled={filled} />)
+      return (
+        <PreviewDatePicker
+          disabled={disabled}
+          filled={filled}
+          invalid={invalid}
+          className={controlWidth}
+        />
+      )
+    case 'date-birth':
+      return (
+        <PreviewDateBirthPicker
+          disabled={disabled}
+          filled={filled}
+          invalid={invalid}
+          className={controlWidth}
+        />
+      )
     case 'date-picker-range':
-      return shell(<PreviewDateRangePicker disabled={disabled} filled={filled} />)
+      return (
+        <PreviewDateRangePicker disabled={disabled} filled={filled} invalid={invalid} />
+      )
     case 'time':
-      return shell(<PreviewTimePicker disabled={disabled} filled={filled} />)
+      return (
+        <PreviewTimePicker
+          disabled={disabled}
+          filled={filled}
+          invalid={invalid}
+          className={controlWidth}
+        />
+      )
     case 'date-time':
-      return shell(
-        <div className="flex w-full max-w-full flex-wrap items-start gap-1">
-          {fieldGroupItem(
-            'Date',
-            'min-w-[160px] max-w-[160px]',
-            <PreviewDatePicker disabled={disabled} filled={filled} invalid={invalid} />,
-          )}
-          {fieldGroupItem(
-            'Time',
-            'min-w-[120px] max-w-[120px]',
-            <PreviewTimePicker disabled={disabled} filled={filled} invalid={invalid} />,
-          )}
-        </div>,
-        { skipInvalidChrome: true },
+      return (
+        <>
+          <PreviewDatePicker
+            disabled={disabled}
+            filled={filled}
+            invalid={invalid}
+            className="min-w-[160px] max-w-[160px]"
+          />
+          <PreviewTimePicker
+            disabled={disabled}
+            filled={filled}
+            invalid={invalid}
+            className="min-w-[120px] max-w-[120px]"
+          />
+        </>
       )
     case 'select':
-      return shell(<PreviewSelectMenu disabled={disabled} filled={filled} />)
+      return (
+        <FieldSelect
+          key={filled ? 'filled' : 'empty'}
+          options={FRUITS}
+          defaultValue={filled ? 'Apple' : ''}
+          placeholder="Select a fruit"
+          disabled={disabled}
+          invalid={invalid}
+          className={controlWidth}
+          aria-label="Select a fruit"
+        />
+      )
+    case 'combobox':
+      return (
+        <FieldCombobox
+          key={filled ? 'filled' : 'empty'}
+          options={FRUITS}
+          defaultValue={filled ? 'Apple' : ''}
+          placeholder="Search fruits…"
+          disabled={disabled}
+          invalid={invalid}
+          className={controlWidth}
+          aria-label="Search fruits"
+        />
+      )
     case 'select-avatar':
-      return shell(<PreviewSelectAvatar disabled={disabled} filled={filled} />)
+      return <PreviewSelectAvatar disabled={disabled} filled={filled} invalid={invalid} className={controlWidth} />
     case 'multi':
-      return shell(<PreviewMultiSelect disabled={disabled} filled={filled} />)
+      return <PreviewMultiSelect disabled={disabled} filled={filled} invalid={invalid} className={controlWidth} />
     case 'multi-avatar':
-      return shell(<PreviewMultiAvatar disabled={disabled} filled={filled} />)
+      return <PreviewMultiAvatar disabled={disabled} filled={filled} invalid={invalid} className={controlWidth} />
     case 'avatar-group':
-      return shell(<PreviewAvatarGroup disabled={disabled} filled={filled} />)
+      return <PreviewAvatarGroup disabled={disabled} filled={filled} invalid={invalid} className={controlWidth} />
     case 'currency':
-      return shell(
-        <div className="relative max-w-full">
+      return (
+        <div data-slot="field-control" className={cn('relative', controlWidth)}>
           <span className={cn(typeToken("text-sm/normal"), "pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-muted-foreground")}>
             $
           </span>
@@ -1011,187 +1115,150 @@ function ValueTypeSurface({
             value={filled ? '1,240.00' : textVal}
             readOnly
             disabled={disabled}
-            className={cn('max-w-full pl-7', HOVER_ELEVATION_MD, FOCUS_RING)}
+            aria-invalid={invalid || undefined}
+            className={cn('max-w-full pl-7', HOVER_ELEVATION_MD, FOCUS_RING, previewInvalidClass(invalid, disabled))}
           />
-        </div>,
+        </div>
       )
     case 'phone':
-      return shell(
+      return (
         <Input
+          data-slot="field-control"
           type="tel"
           placeholder={ph}
           value={filled ? '+1 (555) 000-0000' : textVal}
           readOnly
           disabled={disabled}
-          className={cn('max-w-full', HOVER_ELEVATION_MD, FOCUS_RING)}
-        />,
+          aria-invalid={invalid || undefined}
+          className={cn('max-w-full', HOVER_ELEVATION_MD, FOCUS_RING, previewInvalidClass(invalid, disabled))}
+        />
       )
     case 'custom':
-      return shell(
-        <div className="flex max-w-full gap-2">
+      return (
+        <div data-slot="field-control" className={cn('flex gap-2', controlWidth)}>
           <Input
             placeholder={ph}
             value={textVal}
             readOnly
             disabled={disabled}
-            className={cn('min-w-0 flex-1', HOVER_ELEVATION_MD, FOCUS_RING)}
+            aria-invalid={invalid || undefined}
+            className={cn('min-w-0 flex-1', HOVER_ELEVATION_MD, FOCUS_RING, previewInvalidClass(invalid, disabled))}
           />
           <Button type="button" size="icon" variant="outline" disabled={disabled} aria-label="Extra action">
             <ChevronRight className="size-4 text-muted-foreground opacity-60" aria-hidden />
           </Button>
-        </div>,
+        </div>
       )
     case 'file':
-      return shell(
-        <Button
-          type="button"
-          variant="outline"
-          disabled={disabled}
+      return filled ? (
+        <ImageFile
+          data-slot="field-control"
+          styleVariant="list"
+          size="default"
+          filename="document.pdf"
+          filesize="123.2KB"
+          showDrag
+          onEdit={() => undefined}
+          onDelete={() => undefined}
           className={cn(
-            inputSurfaceClassName,
-            'h-9 max-w-full justify-start gap-2 font-normal',
-            'aria-expanded:bg-transparent',
-            HOVER_ELEVATION_MD,
-            HOVER_BG_TRANSPARENT,
-            FOCUS_RING,
-            INPUT_NO_CLICK_EFFECT,
+            previewInvalidClass(invalid, disabled),
+            disabled && 'pointer-events-none opacity-50',
           )}
-        >
-          <Paperclip className="size-4 text-muted-foreground" aria-hidden />
-          <span className="truncate text-muted-foreground">
-            {filled ? 'document.pdf' : 'Attach file…'}
-          </span>
-        </Button>,
+        />
+      ) : (
+        <FieldFileListEmpty
+          placeholder="Attach file…"
+          disabled={disabled}
+          invalid={invalid}
+        />
       )
     case 'file-large':
-      return shell(
+      return (
         <div
+          data-slot="field-control"
+          aria-invalid={invalid || undefined}
           className={cn(
             inputSurfaceClassName,
             'flex h-24 max-w-full flex-col items-center justify-center gap-1 text-center text-sm',
             HOVER_ELEVATION_MD,
             FOCUS_RING,
+            previewInvalidClass(invalid, disabled),
           )}
         >
           <Paperclip className="size-5 text-muted-foreground" aria-hidden />
           <span className="text-muted-foreground">
             {filled ? 'presentation.pptx' : 'Drop or browse files…'}
           </span>
-        </div>,
+        </div>
       )
     case 'image-l':
-      return shell(
-        <div
-          className={cn(
-            inputSurfaceClassName,
-            'flex h-32 max-w-full items-center justify-center text-xs text-muted-foreground',
-            HOVER_ELEVATION_MD,
-            FOCUS_RING,
-          )}
-        >
-          {filled ? 'Image preview' : 'Large image slot'}
-        </div>,
+      return filled ? (
+        <ImageFile
+          data-slot="field-control"
+          styleVariant="grid"
+          size="lg"
+          src={DEMO_IMAGE_SRC}
+          alt="Sample image"
+          className={cn(previewInvalidClass(invalid, disabled), disabled && 'pointer-events-none opacity-50')}
+        />
+      ) : (
+        <FieldImageEmpty size="lg" disabled={disabled} invalid={invalid} />
       )
     case 'image-s':
-      return shell(
-        <div
-          className={cn(
-            inputSurfaceClassName,
-            "flex size-20 max-w-full items-center justify-center text-muted-foreground",
-            typeToken("text-10/normal"),
-            HOVER_ELEVATION_MD,
-            FOCUS_RING,
-          )}
-        >
-          {filled ? 'Thumb' : 'Small'}
-        </div>,
+      return filled ? (
+        <ImageFile
+          data-slot="field-control"
+          styleVariant="grid"
+          size="default"
+          src={DEMO_IMAGE_SRC}
+          alt="Sample image"
+          className={cn(previewInvalidClass(invalid, disabled), disabled && 'pointer-events-none opacity-50')}
+        />
+      ) : (
+        <FieldImageEmpty disabled={disabled} invalid={invalid} />
       )
     case 'date-range':
-      return shell(
-        <div className="flex max-w-full flex-wrap items-start gap-1">
-          {fieldGroupItem(
-            'Start',
-            'min-w-0 flex-1',
-            <Input
-              type="text"
-              className={cn(
-                'min-h-9 w-full',
-                invalid && !disabled && inputSurfaceInvalidClassName,
-              )}
-              placeholder={filled ? undefined : 'Start'}
-              value={filled ? 'Apr 1, 2026' : ''}
-              readOnly
-              disabled={disabled}
-              aria-invalid={invalid || undefined}
-            />,
-          )}
-          <span
-            className={cn(typeToken("text-sm/normal"), "flex h-9 shrink-0 items-center self-start px-0.5 leading-none text-muted-foreground")}
-            aria-hidden
-          >
-            ~
-          </span>
-          {fieldGroupItem(
-            'End',
-            'min-w-0 flex-1',
-            <Input
-              type="text"
-              className={cn(
-                'min-h-9 w-full',
-                invalid && !disabled && inputSurfaceInvalidClassName,
-              )}
-              placeholder={filled ? undefined : 'End'}
-              value={filled ? 'Apr 30, 2026' : ''}
-              readOnly
-              disabled={disabled}
-              aria-invalid={invalid || undefined}
-            />,
-          )}
-        </div>,
-        { skipInvalidChrome: true },
+      return (
+        <PreviewDateRangeInputs disabled={disabled} filled={filled} invalid={invalid} />
       )
     case 'datetime-range':
-      /* Figma 5329:9597 — one row: date, time, ~, date, time; container 600×36, gap 4px, fields fill. */
-      return shell(
-        <div className="flex w-full max-w-[600px] flex-wrap items-start gap-1">
-          {fieldGroupItem(
-            'Start date',
-            'min-w-[160px] max-w-[160px]',
-            <PreviewDatePicker
-              disabled={disabled}
-              filled={filled}
-              invalid={invalid}
-              filledDate={DEMO_DATETIME_RANGE_START_DATE}
-            />,
-          )}
-          {fieldGroupItem(
-            'Start time',
-            'min-w-[120px] max-w-[120px]',
-            <PreviewTimePicker disabled={disabled} filled={filled} invalid={invalid} filledTime="09:00" />,
-          )}
+      return (
+        <>
+          <PreviewDatePicker
+            disabled={disabled}
+            filled={filled}
+            invalid={invalid}
+            filledDate={DEMO_DATETIME_RANGE_START_DATE}
+            className="min-w-[160px] max-w-[160px]"
+          />
+          <PreviewTimePicker
+            disabled={disabled}
+            filled={filled}
+            invalid={invalid}
+            filledTime="09:00"
+            className="min-w-[120px] max-w-[120px]"
+          />
           <span
             className={cn(typeToken("text-sm/normal"), "flex h-9 shrink-0 items-center self-start px-0.5 leading-none text-muted-foreground")}
             aria-hidden
           >
             ~
           </span>
-          {fieldGroupItem(
-            'End date',
-            'min-w-[160px] max-w-[160px]',
-            <PreviewDatePicker
-              disabled={disabled}
-              filled={filled}
-              invalid={invalid}
-              filledDate={DEMO_DATETIME_RANGE_END_DATE}
-            />,
-          )}
-          {fieldGroupItem(
-            'End time',
-            'min-w-[120px] max-w-[120px]',
-            <PreviewTimePicker disabled={disabled} filled={filled} invalid={invalid} filledTime="17:00" />,
-          )}
-        </div>,
-        { skipInvalidChrome: true },
+          <PreviewDatePicker
+            disabled={disabled}
+            filled={filled}
+            invalid={invalid}
+            filledDate={DEMO_DATETIME_RANGE_END_DATE}
+            className="min-w-[160px] max-w-[160px]"
+          />
+          <PreviewTimePicker
+            disabled={disabled}
+            filled={filled}
+            invalid={invalid}
+            filledTime="17:00"
+            className="min-w-[120px] max-w-[120px]"
+          />
+        </>
       )
   }
 }
@@ -1225,110 +1292,68 @@ function FieldFrameworkNotesTable() {
   )
 }
 
-function RequiredMark() {
-  return <span className="text-destructive">*</span>
-}
-
-function InfoHint({ content }: { content: string }) {
-  return (
-    <span className="group/info relative inline-flex">
-      <button
-        type="button"
-        className="inline-flex size-5 items-center justify-center rounded-full text-foreground outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-        aria-label={content}
-      >
-        <Info className="size-4" aria-hidden />
-      </button>
-      <span
-        role="tooltip"
-        className={cn(typeToken("text-xs/normal"), "pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-52 -translate-x-1/2 rounded-md bg-popover px-3 py-2 leading-snug text-popover-foreground shadow-elevation-md ring-1 ring-border group-hover/info:block group-focus-within/info:block")}
-      >
-        {content}
-      </span>
-    </span>
-  )
-}
-
 function PepFieldCopy({
   label,
   descriptionTop,
   descriptionBottom,
+  filled,
   errorText,
   hasError,
+  anatomy,
+  inputGroupClassName,
   children,
 }: {
   label: string
   descriptionTop: string
   descriptionBottom: string
+  filled: boolean
   errorText: string
   hasError: boolean
+  anatomy: FieldAnatomyOptions
+  inputGroupClassName?: string
   children: React.ReactNode
 }) {
   return (
-    <Field className="min-w-0 gap-2" data-invalid={hasError || undefined}>
-      <FieldLabel className="items-center gap-1.5">
-        {label}
-        <RequiredMark />
-        <InfoHint content={`Info: API-provided help text for ${label}.`} />
-      </FieldLabel>
-      <FieldDescription className={cn(typeToken("text-xs/normal"), "leading-4")}>
-        {descriptionTop}
-      </FieldDescription>
+    <LibraryField
+      label={label}
+      descriptionTop={anatomy.showDescriptionTop ? descriptionTop : undefined}
+      descriptionBottom={anatomy.showDescriptionBottom ? descriptionBottom : undefined}
+      filled={filled}
+      hints={anatomy.showHints ? `Optional remark about the ${label} field.` : undefined}
+      error={hasError ? errorText : undefined}
+      invalid={hasError}
+      required={anatomy.showRequired}
+      className="gap-2"
+      inputGroupClassName={inputGroupClassName}
+    >
       {children}
-      {hasError ? <FieldError className={cn(typeToken("text-xs/normal"), "px-2.5")}>{errorText}</FieldError> : null}
-      <FieldDescription className={cn(typeToken("text-xs/normal"), "leading-4")}>
-        {descriptionBottom}
-      </FieldDescription>
-    </Field>
-  )
-}
-
-function PepFieldGroupCopy({
-  label,
-  descriptionTop,
-  descriptionBottom,
-  hasError,
-  children,
-}: {
-  label: string
-  descriptionTop: string
-  descriptionBottom: string
-  hasError: boolean
-  children: React.ReactNode
-}) {
-  return (
-    <FieldSet className="min-w-0 gap-2" data-invalid={hasError || undefined}>
-      <FieldLegend
-        variant="label"
-        className={cn("mb-0 flex items-center gap-1.5", hasError && "text-destructive")}
-      >
-        {label}
-        <RequiredMark />
-        <InfoHint content={`Info: API-provided help text for ${label}.`} />
-      </FieldLegend>
-      <FieldDescription className={cn(typeToken("text-xs/normal"), "leading-4")}>
-        {descriptionTop}
-      </FieldDescription>
-      {children}
-      <FieldDescription className={cn(typeToken("text-xs/normal"), "leading-4")}>
-        {descriptionBottom}
-      </FieldDescription>
-    </FieldSet>
+    </LibraryField>
   )
 }
 
 function PepInputAnatomyPreview({
   row,
   interaction,
+  anatomy,
 }: {
   row: FieldInputRow
   interaction: InteractionKey
+  anatomy: FieldAnatomyOptions
 }) {
-  const isFieldGroup = row.section === 'field-group'
   const hasError = interaction === 'error'
-  const errorText = `Error text for ${row.figmaName}`
-  const descriptionTop = `Description shown above ${row.figmaName}.`
-  const descriptionBottom = `Description bottom for ${row.figmaName}.`
+  const { wrapClassName } = usePreviewChrome(interaction)
+  const inputGroupClassName = cn(
+    'w-full max-w-full',
+    wrapClassName,
+    row.multiInput && row.id === 'datetime-range' && 'max-w-[600px]',
+    row.multiInput && row.id === 'date-range' && 'max-w-[400px]',
+  )
+  const errorText = row.multiInput && row.inputErrorLabels?.length
+    ? previewCombinedFieldError(row.inputErrorLabels, hasError) ?? ''
+    : `Error text for ${row.figmaName}`
+  const filled = interaction === 'filled-enabled' || interaction === 'error'
+  const descriptionTop = `Describes the ${row.figmaName} label — what this field is.`
+  const descriptionBottom = `Describes the ${row.figmaName} input value — format, rules, or outcome.`
   const body = (
     <ValueTypeSurface
       id={row.id}
@@ -1337,26 +1362,16 @@ function PepInputAnatomyPreview({
     />
   )
 
-  if (isFieldGroup) {
-    return (
-      <PepFieldGroupCopy
-        label={row.figmaName}
-        descriptionTop={descriptionTop}
-        descriptionBottom={descriptionBottom}
-        hasError={hasError}
-      >
-        {body}
-      </PepFieldGroupCopy>
-    )
-  }
-
   return (
     <PepFieldCopy
       label={row.figmaName}
       descriptionTop={descriptionTop}
       descriptionBottom={descriptionBottom}
+      filled={filled}
       errorText={errorText}
       hasError={hasError}
+      anatomy={anatomy}
+      inputGroupClassName={inputGroupClassName}
     >
       {body}
     </PepFieldCopy>
@@ -1365,9 +1380,11 @@ function PepInputAnatomyPreview({
 
 function InputPreviewMatrix({
   rows,
+  anatomy,
   showPendingNotes = false,
 }: {
   rows: FieldInputRow[]
+  anatomy: FieldAnatomyOptions
   showPendingNotes?: boolean
 }) {
   return (
@@ -1392,22 +1409,14 @@ function InputPreviewMatrix({
                 <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                   <h3 className={cn(typeToken("text-sm/semibold"), "tracking-tight text-foreground")}>{title}</h3>
                   <pre className="whitespace-pre font-mono text-[11px] leading-4 text-muted-foreground">
-                    {section === 'field'
-                      ? `Field
+                    {`Field
 ├─ Label
 ├─ Required
 ├─ Hints
-├─ Input
+├─ FieldDescription for Label
+├─ Input Group
 ├─ Error
-└─ Bottom description`
-                      : `FieldSet
-├─ Label
-├─ Required
-├─ Hints
-├─ FieldGroup
-│  ├─ Field (input + error)
-│  └─ Field (input + error)
-└─ Bottom description`}
+└─ FieldDescription for value`}
                   </pre>
                 </div>
               </div>
@@ -1436,7 +1445,7 @@ function InputPreviewMatrix({
                         <p className={cn(typeToken("text-xs/medium"), "text-muted-foreground sm:hidden")}>
                           {opt.label}
                         </p>
-                        <PepInputAnatomyPreview row={row} interaction={opt.key} />
+                        <PepInputAnatomyPreview row={row} interaction={opt.key} anatomy={anatomy} />
                       </div>
                     ))}
                   </div>
@@ -1450,6 +1459,8 @@ function InputPreviewMatrix({
 }
 
 export function InputTypePage() {
+  const [fieldAnatomy, setFieldAnatomy] = React.useState(DEFAULT_FIELD_ANATOMY)
+
   return (
     <PepDesignSystemPage title="Field" contentClassName="space-y-10 pt-4">
         {/* Notes */}
@@ -1472,7 +1483,8 @@ export function InputTypePage() {
             </span>{' '}
             Compose using primitives listed in Notes — do not invent one-off field chrome.
           </p>
-          <InputPreviewMatrix rows={FIELD_LIBRARY_ROWS} />
+          <FieldAnatomySwitches value={fieldAnatomy} onChange={setFieldAnatomy} />
+          <InputPreviewMatrix rows={FIELD_LIBRARY_ROWS} anatomy={fieldAnatomy} />
         </section>
 
         {/* New inputs (pending review) */}
@@ -1487,7 +1499,7 @@ export function InputTypePage() {
             <code className="text-foreground">field-input-registry.ts</code> and update Framework
             differences if the promotion adds new PEP overrides.
           </p>
-          <InputPreviewMatrix rows={FIELD_PENDING_ROWS} showPendingNotes />
+          <InputPreviewMatrix rows={FIELD_PENDING_ROWS} anatomy={fieldAnatomy} showPendingNotes />
         </section>
     </PepDesignSystemPage>
   )

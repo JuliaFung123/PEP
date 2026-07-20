@@ -37,6 +37,10 @@ import { PageHeaderBlockPage } from './pages/PageHeaderBlockPage'
 import { PopupHeaderBlockPage } from './pages/PopupHeaderBlockPage'
 import { FullPagePopupPage } from './pages/FormsLayoutPage'
 import { TablePage } from './pages/TablePage'
+import { SelectPage } from './pages/SelectPage'
+import { ComboboxPage } from './pages/ComboboxPage'
+import { OptionRowPage } from './pages/OptionRowPage'
+import { DatePickerPage } from './pages/DatePickerPage'
 import { InputTypePage } from './pages/InputTypePage'
 import { FilterPage } from './pages/FilterPage'
 import { OrdersAdminPage } from './pages/OrdersAdminPage'
@@ -80,6 +84,10 @@ function pageFromPath(pathname: string): PreviewPage {
   if (pathname === '/preview/image-file' || pathname === '/preview/image') return 'image-file'
   if (pathname === '/preview/hover-action' || pathname === '/preview/hover-overlay' || pathname === '/preview/hover') return 'hover-action'
   if (pathname === '/preview/dropdown-menu' || pathname === '/preview/dropdown') return 'dropdown-menu'
+  if (pathname === '/preview/datepicker' || pathname === '/preview/date-picker') return 'datepicker'
+  if (pathname === '/preview/select') return 'select'
+  if (pathname === '/preview/combobox') return 'combobox'
+  if (pathname === '/preview/option-row') return 'option-row'
   if (pathname === '/preview/steppers' || pathname === '/preview/stepper') return 'steppers'
   if (pathname === '/preview/sidebar-items' || pathname === '/preview/main-menu') return 'sidebar-items'
   if (pathname === '/preview/sidebar') return 'sidebar'
@@ -122,6 +130,10 @@ function pathFromPage(page: PreviewPage): string {
   if (page === 'image-file') return '/preview/image-file'
   if (page === 'hover-action') return '/preview/hover-action'
   if (page === 'dropdown-menu') return '/preview/dropdown-menu'
+  if (page === 'datepicker') return '/preview/datepicker'
+  if (page === 'select') return '/preview/select'
+  if (page === 'combobox') return '/preview/combobox'
+  if (page === 'option-row') return '/preview/option-row'
   if (page === 'steppers') return '/preview/steppers'
   if (page === 'sidebar-items') return '/preview/sidebar-items'
   if (page === 'sidebar') return '/preview/sidebar'
@@ -244,6 +256,14 @@ function App() {
             <HoverActionPage />
           ) : page === 'dropdown-menu' ? (
             <DropdownMenuPage />
+          ) : page === 'datepicker' ? (
+            <DatePickerPage />
+          ) : page === 'select' ? (
+            <SelectPage />
+          ) : page === 'combobox' ? (
+            <ComboboxPage />
+          ) : page === 'option-row' ? (
+            <OptionRowPage />
           ) : page === 'steppers' ? (
             <SteppersPage />
           ) : page === 'sidebar-items' ? (

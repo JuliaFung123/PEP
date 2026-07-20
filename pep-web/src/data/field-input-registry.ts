@@ -11,7 +11,7 @@
 
 export type FieldInputTier = 'library' | 'pending'
 
-export type FieldInputSection = 'field' | 'field-group'
+export type FieldInputSection = 'field'
 
 export type FieldInputId =
   | 'text'
@@ -19,9 +19,11 @@ export type FieldInputId =
   | 'textarea-language'
   | 'textarea'
   | 'date'
+  | 'date-birth'
   | 'date-picker-range'
   | 'time'
   | 'select'
+  | 'combobox'
   | 'select-avatar'
   | 'multi'
   | 'multi-image'
@@ -68,8 +70,9 @@ export const FIELD_FRAMEWORK_DIFFERENCES: FieldFrameworkDifference[] = [
   {
     property: 'Select shells',
     shadcn: 'Select / Combobox primitives',
-    pep: 'Button outline + inputSurfaceClassName',
-    programmerNote: 'Compose in-page; see §2 Select / Multi rows. No separate Select component file.',
+    pep: 'SelectTrigger + inputSelectTriggerClassName',
+    programmerNote:
+      'FieldSelect wraps shadcn Select + SelectItem; FieldCombobox wraps shadcn Combobox + ComboboxItem. Triggers get PEP field surface tokens. See /preview/select and /preview/combobox.',
   },
   {
     property: 'Disabled',
@@ -83,14 +86,21 @@ export const FIELD_FRAMEWORK_DIFFERENCES: FieldFrameworkDifference[] = [
     shadcn: 'aria-invalid on each control',
     pep: 'One shell owns the ring',
     programmerNote:
-      'Put aria-invalid (or forced invalid class) only on the chrome owner. Nested Input/Button inside a composed surface use inputInnerControlClassName — never fan out rings to children. Field-group rows: each box is a LibraryFieldGroupItem with its own FieldError + invalid ring (no shared wrapper ring).',
+      'Put aria-invalid (or forced invalid class) only on each input shell — never on Input Group. Multi-input: one combined FieldError on the Field via formatCombinedFieldErrors.',
+  },
+  {
+    property: 'Field descriptions',
+    shadcn: 'Single FieldDescription',
+    pep: 'Top + bottom FieldDescription + Hints tooltip',
+    programmerNote:
+      'descriptionTop (or description) describes the label. descriptionBottom describes the input value and renders only when filled={true}. hints is optional ⓘ tooltip for minor field remarks.',
   },
   {
     property: 'Field wrapper',
     shadcn: 'Field, FieldLabel, FieldError',
-    pep: 'Same primitives',
+    pep: 'LibraryField',
     programmerNote:
-      'Invalid state: data-invalid on Field + aria-invalid on the surface owner. FieldSet legend turns red when any LibraryFieldGroupItem has an error; errors live under each box, not at FieldSet level.',
+      'Label → Required → Hints (ⓘ) → FieldDescription (top) → Input Group → Error → FieldDescription (bottom). §2 controls as direct children of Input Group.',
   },
   {
     property: 'Shared chrome',
@@ -120,6 +130,10 @@ export type FieldInputRow = {
   figmaName: string
   tier: FieldInputTier
   section: FieldInputSection
+  /** Multi-input Field (group variant) — Input Group + combined error. */
+  multiInput?: boolean
+  /** Per-box labels for combined error copy on the Field page. */
+  inputErrorLabels?: string[]
   /** Shown in §3 for inputs awaiting promotion to §2. */
   pendingNote?: string
 }
@@ -130,9 +144,11 @@ export const FIELD_INPUT_ROWS: FieldInputRow[] = [
   { id: 'text', figmaName: 'Text', tier: 'library', section: 'field' },
   { id: 'textarea', figmaName: 'Textarea', tier: 'library', section: 'field' },
   { id: 'date', figmaName: 'Date', tier: 'library', section: 'field' },
+  { id: 'date-birth', figmaName: 'Date of birth', tier: 'library', section: 'field' },
   { id: 'date-picker-range', figmaName: 'Date Range', tier: 'library', section: 'field' },
   { id: 'time', figmaName: 'Time', tier: 'library', section: 'field' },
   { id: 'select', figmaName: 'Select', tier: 'library', section: 'field' },
+  { id: 'combobox', figmaName: 'Combobox', tier: 'library', section: 'field' },
   { id: 'multi', figmaName: 'Multi', tier: 'library', section: 'field' },
   { id: 'multi-image', figmaName: 'Multi Image', tier: 'library', section: 'field' },
   { id: 'multi-avatar', figmaName: 'Multi Avatar', tier: 'library', section: 'field' },
@@ -146,9 +162,16 @@ export const FIELD_INPUT_ROWS: FieldInputRow[] = [
   { id: 'file-large', figmaName: 'file Large', tier: 'library', section: 'field' },
   { id: 'image-l', figmaName: 'Image-L', tier: 'library', section: 'field' },
   { id: 'image-s', figmaName: 'Image-S', tier: 'library', section: 'field' },
-  { id: 'date-time', figmaName: 'Date+time', tier: 'library', section: 'field-group' },
-  { id: 'date-range', figmaName: 'DateRange (2 fields)', tier: 'library', section: 'field-group' },
-  { id: 'datetime-range', figmaName: 'DatetimeRange', tier: 'library', section: 'field-group' },
+  { id: 'date-time', figmaName: 'Date+time', tier: 'library', section: 'field', multiInput: true, inputErrorLabels: ['Date', 'Time'] },
+  { id: 'date-range', figmaName: 'DateRange (2 inputs)', tier: 'library', section: 'field', multiInput: true, inputErrorLabels: ['Start', 'End'] },
+  {
+    id: 'datetime-range',
+    figmaName: 'DatetimeRange',
+    tier: 'library',
+    section: 'field',
+    multiInput: true,
+    inputErrorLabels: ['Start date', 'Start time', 'End date', 'End time'],
+  },
   // §3 — New inputs (pending review)
   {
     id: 'custom',
@@ -164,5 +187,4 @@ export const FIELD_PENDING_ROWS = FIELD_INPUT_ROWS.filter((r) => r.tier === 'pen
 
 export const FIELD_INPUT_SECTIONS: { title: string; section: FieldInputSection }[] = [
   { title: 'Field', section: 'field' },
-  { title: 'Field Group', section: 'field-group' },
 ]

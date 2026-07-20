@@ -4,10 +4,11 @@ import { PepDesignSystemPage } from "@/components/pep-chrome"
 import { Card } from "@/components/ui/card"
 import { HoverAction, type HoverActionStyle } from "@/components/ui/hover-action"
 import { ImageFile } from "@/components/ui/image-file"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -30,7 +31,15 @@ const ROWS: {
 ]
 
 /** Bare chrome for docs — actions always visible. */
-function AlwaysOnChrome({ styleVariant }: { styleVariant: HoverActionStyle }) {
+function AlwaysOnChrome({
+  styleVariant,
+  showDrag,
+  showActions,
+}: {
+  styleVariant: HoverActionStyle
+  showDrag: boolean
+  showActions: boolean
+}) {
   const [checked, setChecked] = React.useState(false)
 
   return (
@@ -45,23 +54,31 @@ function AlwaysOnChrome({ styleVariant }: { styleVariant: HoverActionStyle }) {
       <HoverAction
         styleVariant={styleVariant}
         forceVisible
-        drag={styleVariant !== "card"}
-        edit={styleVariant !== "card"}
-        delete={styleVariant !== "card"}
-        more={styleVariant === "card"}
-        check={styleVariant === "card"}
+        drag={showDrag && styleVariant !== "card"}
+        edit={showActions && styleVariant !== "card"}
+        delete={showActions && styleVariant !== "card"}
+        more={showActions && styleVariant === "card"}
+        check={showActions && styleVariant === "card"}
         checked={checked}
         onCheckedChange={setChecked}
-        onEdit={() => undefined}
-        onDelete={() => undefined}
-        onMore={() => undefined}
+        onEdit={showActions && styleVariant !== "card" ? () => undefined : undefined}
+        onDelete={showActions && styleVariant !== "card" ? () => undefined : undefined}
+        onMore={showActions && styleVariant === "card" ? () => undefined : undefined}
       />
     </div>
   )
 }
 
 /** Related host with HoverAction — shown on hover. */
-function PreviewHost({ styleVariant }: { styleVariant: HoverActionStyle }) {
+function PreviewHost({
+  styleVariant,
+  showDrag,
+  showActions,
+}: {
+  styleVariant: HoverActionStyle
+  showDrag: boolean
+  showActions: boolean
+}) {
   const [checked, setChecked] = React.useState(false)
 
   if (styleVariant === "list") {
@@ -74,9 +91,9 @@ function PreviewHost({ styleVariant }: { styleVariant: HoverActionStyle }) {
         filename="filename.png"
         filesize="123.2KB"
         path={PATH}
-        showDrag
-        onEdit={() => undefined}
-        onDelete={() => undefined}
+        showDrag={showDrag}
+        onEdit={showActions ? () => undefined : undefined}
+        onDelete={showActions ? () => undefined : undefined}
       />
     )
   }
@@ -88,9 +105,9 @@ function PreviewHost({ styleVariant }: { styleVariant: HoverActionStyle }) {
         size="default"
         src={SAMPLE_SRC}
         alt="Sample"
-        showDrag
-        onEdit={() => undefined}
-        onDelete={() => undefined}
+        showDrag={showDrag}
+        onEdit={showActions ? () => undefined : undefined}
+        onDelete={showActions ? () => undefined : undefined}
       />
     )
   }
@@ -106,19 +123,24 @@ function PreviewHost({ styleVariant }: { styleVariant: HoverActionStyle }) {
         className="absolute inset-0 size-full object-cover"
         draggable={false}
       />
-      <HoverAction
-        styleVariant="card"
-        check
-        more
-        checked={checked}
-        onCheckedChange={setChecked}
-        onMore={() => undefined}
-      />
+      {showActions ? (
+        <HoverAction
+          styleVariant="card"
+          check
+          more
+          checked={checked}
+          onCheckedChange={setChecked}
+          onMore={() => undefined}
+        />
+      ) : null}
     </Card>
   )
 }
 
 export function HoverActionPage() {
+  const [showDrag, setShowDrag] = React.useState(true)
+  const [showActions, setShowActions] = React.useState(true)
+
   return (
     <PepDesignSystemPage title="Hover action" contentClassName="space-y-10">
       <section>
@@ -144,14 +166,41 @@ export function HoverActionPage() {
         <p className={cn(typeToken("text-xs/normal"), "mb-4 text-muted-foreground")}>
           <span className="font-medium text-foreground">Always on</span> shows the action chrome.{" "}
           <span className="font-medium text-foreground">Preview</span> attaches it to a related
-          host — hover to reveal.
+          host — hover to reveal. Toggle <span className="font-medium text-foreground">Drag</span>{" "}
+          and <span className="font-medium text-foreground">Actions</span> to preview each slot
+          (List / Image: grip + edit/delete; Card: checkbox + more).
         </p>
 
         <div className="rounded-xl border border-border/60 bg-muted px-4 py-5">
+          <div className="mb-4 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <div className="flex items-center gap-2">
+              <Switch
+                id="hover-action-drag"
+                checked={showDrag}
+                onCheckedChange={setShowDrag}
+                aria-label="Drag"
+              />
+              <Label htmlFor="hover-action-drag" className={cn(typeToken("text-xs/normal"), "text-muted-foreground")}>
+                Drag
+              </Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                id="hover-action-actions"
+                checked={showActions}
+                onCheckedChange={setShowActions}
+                aria-label="Actions"
+              />
+              <Label
+                htmlFor="hover-action-actions"
+                className={cn(typeToken("text-xs/normal"), "text-muted-foreground")}
+              >
+                Actions
+              </Label>
+            </div>
+          </div>
+
           <Table>
-            <TableCaption className={cn(typeToken("text-xs/medium"), "caption-top mb-3 text-left text-muted-foreground")}>
-              Style × always on × preview host
-            </TableCaption>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[8.5rem]">Style</TableHead>
@@ -167,10 +216,18 @@ export function HoverActionPage() {
                     <div className="mt-0.5 text-[11px] text-muted-foreground">{hostLabel}</div>
                   </TableCell>
                   <TableCell className="align-middle">
-                    <AlwaysOnChrome styleVariant={style} />
+                    <AlwaysOnChrome
+                      styleVariant={style}
+                      showDrag={showDrag}
+                      showActions={showActions}
+                    />
                   </TableCell>
                   <TableCell className="align-middle">
-                    <PreviewHost styleVariant={style} />
+                    <PreviewHost
+                      styleVariant={style}
+                      showDrag={showDrag}
+                      showActions={showActions}
+                    />
                   </TableCell>
                 </TableRow>
               ))}

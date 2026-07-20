@@ -38,6 +38,10 @@ export type PreviewPage =
   | "image-file"
   | "hover-action"
   | "dropdown-menu"
+  | "datepicker"
+  | "select"
+  | "combobox"
+  | "option-row"
   | "steppers"
   | "sidebar-items"
   | "sidebar"
@@ -84,14 +88,18 @@ const SECTIONS: {
       { id: "badges", label: "Badges" },
       { id: "button-group", label: "Button group" },
       { id: "buttons", label: "Buttons" },
+      { id: "datepicker", label: "Datepicker" },
       { id: "dropdown-menu", label: "Dropdown menu" },
       { id: "input-type", label: "Field" },
       { id: "hover-action", label: "Hover action" },
       { id: "image-file", label: "Image / File" },
+      { id: "option-row", label: "Option row" },
       { id: "pagination", label: "Pagination" },
       { id: "progress", label: "Progress" },
       { id: "radio-checkbox", label: "Radio / Checkbox" },
       { id: "richtext", label: "Richtext" },
+      { id: "select", label: "Select" },
+      { id: "combobox", label: "Combobox" },
       { id: "sidebar-items", label: "Sidebar items" },
       { id: "steppers", label: "Steppers" },
       { id: "switch", label: "Switch" },

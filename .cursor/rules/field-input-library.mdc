@@ -26,13 +26,16 @@ The **Field** preview page (`/preview/input-type`, sidebar label **Field**) is t
 
 ## Field chrome (mandatory)
 
-| Piece | Use |
-|-------|-----|
-| Labeled field shell | `@/components/library-field` → `LibraryField` / `LibraryFieldSet` |
-| Field-group box (multi-input row) | `LibraryFieldGroupItem` — one input + optional `error` / `invalid` per box |
-| Primitives only | `@/components/ui/field` (`Field`, `FieldLabel`, …) — prefer via `LibraryField` |
-| Gap | Default `gap-2` on `Field` — **never** override with `gap-1.5` etc. in pages |
-| Description | Built into `FieldDescription` (`text-xs leading-4`) |
+| Piece | Prop / slot | Purpose |
+|-------|-------------|---------|
+| Labeled field shell | `LibraryField` | — |
+| Label | `label` | Field name |
+| Required | `required` | Required marker |
+| Hints | `hints` | Optional ⓘ tooltip — minor remarks about the field |
+| Top description | `descriptionTop` / `description` → `FieldDescription` | **Describes the label** — what this field is |
+| Input Group | `LibraryFieldInputGroup` | §2 controls (`data-slot="field-control"`) |
+| Error | `error` / `errors[]` | Validation message |
+| Bottom description | `descriptionBottom` → `FieldDescription` | **Describes the input value** — visible only when `filled` |
 
 ## Styling (from §1)
 
