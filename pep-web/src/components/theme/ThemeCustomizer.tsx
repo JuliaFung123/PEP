@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { accessibleForegroundCssForHslBackground, hslToRgb, relativeLuminanceFromHsl } from '@/lib/accessible-foreground'
 import { cn } from '@/lib/utils'
+import { typeToken } from "@/data/typography-tokens"
 
 const STORAGE_KEY = 'pep.theme-semantic-hsl'
 const LEGACY_STORAGE_KEY = 'pep.theme-primary-hsl'
@@ -291,8 +292,8 @@ function CustomizerRow({
     <div className="flex min-w-0 flex-col gap-4 border-l border-border pl-3 lg:pl-5 first:border-l-0 first:pl-0">
       <div className="flex flex-col gap-1">
         <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1">
-          <h3 className="text-base font-semibold tracking-tight text-foreground">{title}</h3>
-          <code className="text-[10px] text-foreground-emphasis-low">{tailwindClass}</code>
+          <h3 className={cn(typeToken("text-base/semibold"), "tracking-tight text-foreground")}>{title}</h3>
+          <code className={cn(typeToken("text-10/normal"), "text-foreground-emphasis-low")}>{tailwindClass}</code>
         </div>
         <code className="block text-[11px] text-foreground-emphasis-low">{cssVar}</code>
       </div>
@@ -306,14 +307,14 @@ function CustomizerRow({
           style={{ backgroundColor: `var(${fgVar})` }}
           aria-hidden
         />
-        <span className="text-sm font-semibold tracking-tight" style={{ color: `var(${fgVar})` }}>
+        <span className={cn(typeToken("text-sm/semibold"), "tracking-tight")} style={{ color: `var(${fgVar})` }}>
           {fgLabel}
         </span>
       </div>
 
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between gap-3">
-          <span className="shrink-0 text-xs font-medium text-foreground-emphasis-low">Color picker</span>
+          <span className={cn(typeToken("text-xs/medium"), "shrink-0 text-foreground-emphasis-low")}>Color picker</span>
           <div className="flex min-w-0 items-center gap-2">
             <code className="truncate text-[11px] text-foreground-emphasis-low">{hex}</code>
             <label className="relative flex size-12 shrink-0 cursor-pointer overflow-hidden rounded-lg border-2 border-border shadow-sm ring-offset-background transition-[box-shadow] hover:ring-2 hover:ring-ring/30">
@@ -374,11 +375,11 @@ function CustomizerRow({
         </div>
 
         <div className="min-w-0">
-          <span className="text-xs font-medium text-foreground-emphasis-low">CSS</span>
+          <span className={cn(typeToken("text-xs/medium"), "text-foreground-emphasis-low")}>CSS</span>
           <code className="mt-1 block break-all rounded-md border bg-muted/50 px-2 py-2 text-[11px]">
             {cssVar}: hsl({h} {s}% {l}%)
           </code>
-          <p className="mt-1.5 text-[10px] leading-snug text-foreground-emphasis-low">
+          <p className={cn(typeToken("text-10/normal"), "mt-1.5 leading-snug text-foreground-emphasis-low")}>
             Relative luminance {lumPct}% (WCAG) — {luminance > 0.6 ? 'dark' : 'light'} on-text via{' '}
             <code className="text-[9px]">{fgVar}</code>
           </p>
@@ -453,7 +454,7 @@ export function ThemeCustomizer({ theme }: { theme: ThemeMode }) {
             Light/Dark 各 3 顏色客戶可提供，其 foreground Color 會自動計算。
           </CardDescription>
         </div>
-        <Button type="button" variant="outline" size="sm" onClick={reset} className="shrink-0 gap-1.5">
+        <Button type="button" variant="outline" size="xs" onClick={reset} className="shrink-0 gap-1.5">
           <RotateCcw className="size-3.5" />
           還原預設
         </Button>

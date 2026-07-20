@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/card'
 import { ThemeCustomizer } from '@/components/theme/ThemeCustomizer'
 import { cn } from '@/lib/utils'
+import { typeToken } from "@/data/typography-tokens"
 
 type ThemeMode = 'light' | 'dark'
 
@@ -195,7 +196,7 @@ function ColorSwatch({ item }: { item: SemanticColor }) {
   return (
     <div className="overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm">
       <div className="flex flex-col gap-0.5 border-b px-3 py-1.5 leading-snug">
-        <div className="truncate text-sm font-medium leading-tight">{item.cssVar}</div>
+        <div className={cn(typeToken("text-sm/medium"), "truncate leading-tight")}>{item.cssVar}</div>
         <div className="truncate text-[11px] leading-snug text-muted-foreground">{item.label}</div>
       </div>
       <div className="relative space-y-2 p-3">
@@ -214,7 +215,7 @@ function ColorSwatch({ item }: { item: SemanticColor }) {
                 aria-hidden
               />
               <span
-                className="text-sm font-semibold tracking-tight"
+                className={cn(typeToken("text-sm/semibold"), "tracking-tight")}
                 style={{ color: `var(${item.onPair.cssVar})` }}
               >
                 {item.onPair.label}
@@ -223,7 +224,7 @@ function ColorSwatch({ item }: { item: SemanticColor }) {
           ) : item.swatch === 'fill' && item.swatchTextLabel && item.textCssVar ? (
             <div className="flex min-h-[88px] items-center justify-center px-3">
               <span
-                className="text-sm font-semibold tracking-tight"
+                className={cn(typeToken("text-sm/semibold"), "tracking-tight")}
                 style={{ color: `var(${item.textCssVar})` }}
               >
                 {item.swatchTextLabel}
@@ -393,7 +394,7 @@ function SpacingScaleTable() {
         ))}
       </div>
       <div className="overflow-x-auto rounded-lg border">
-        <table className="w-full min-w-[640px] text-left text-sm">
+        <table className={cn(typeToken("text-sm/normal"), "w-full min-w-[640px] text-left")}>
           <thead>
             <tr className="border-b bg-muted/50">
               <th className="px-3 py-2 font-medium">Step</th>
@@ -409,16 +410,16 @@ function SpacingScaleTable() {
               return (
                 <tr key={step} className="border-b border-border/80 last:border-0">
                   <td className="px-3 py-2 font-mono font-medium">{step}</td>
-                  <td className="px-3 py-2 font-mono text-xs text-foreground-emphasis-low">
+                  <td className={cn(typeToken("text-xs/normal"), "px-3 py-2 font-mono text-foreground-emphasis-low")}>
                     {r ? `${step} → ${r.pPx}` : '…'}
                   </td>
                   <td className="px-3 py-2">
-                    <code className="text-xs">{SPACING_STEP_TO_PADDING[step]}</code>
+                    <code className={typeToken("text-xs/normal")}>{SPACING_STEP_TO_PADDING[step]}</code>
                   </td>
                   <td className="px-3 py-2 font-mono text-[11px] text-foreground-emphasis-low">
                     {r ? (
                       <>
-                        <code className="text-xs text-foreground">{SPACING_STEP_TO_GAP[step]}</code>
+                        <code className={cn(typeToken("text-xs/normal"), "text-foreground")}>{SPACING_STEP_TO_GAP[step]}</code>
                         {' → '}
                         {r.gPx}
                       </>
@@ -429,7 +430,7 @@ function SpacingScaleTable() {
                   <td className="px-3 py-2 font-mono text-[11px] text-foreground-emphasis-low">
                     {r ? (
                       <>
-                        <code className="text-xs text-foreground">{SPACING_STEP_TO_MARGIN[step]}</code>
+                        <code className={cn(typeToken("text-xs/normal"), "text-foreground")}>{SPACING_STEP_TO_MARGIN[step]}</code>
                         {' → '}
                         {r.mPx}
                       </>
@@ -478,7 +479,7 @@ function RadiusTable({ theme }: { theme: ThemeMode }) {
 
   return (
     <div className="overflow-x-auto rounded-lg border">
-      <table className="w-full min-w-[520px] text-left text-sm">
+      <table className={cn(typeToken("text-sm/normal"), "w-full min-w-[520px] text-left")}>
         <thead>
           <tr className="border-b bg-muted/50">
             <th className="px-3 py-2 font-medium">CSS variable</th>
@@ -490,10 +491,10 @@ function RadiusTable({ theme }: { theme: ThemeMode }) {
         <tbody>
           {rows.map((r) => (
             <tr key={r.name} className="border-b border-border/80 last:border-0">
-              <td className="px-3 py-2 font-mono text-xs">{r.name}</td>
+              <td className={cn(typeToken("text-xs/normal"), "px-3 py-2 font-mono")}>{r.name}</td>
               <td className="px-3 py-2 font-mono text-[11px] text-foreground-emphasis-low">{r.raw}</td>
-              <td className="px-3 py-2 font-mono text-xs text-foreground-emphasis-low">{r.px}</td>
-              <td className="px-3 py-2 text-xs text-foreground-emphasis-low">{r.note ?? '—'}</td>
+              <td className={cn(typeToken("text-xs/normal"), "px-3 py-2 font-mono text-foreground-emphasis-low")}>{r.px}</td>
+              <td className={cn(typeToken("text-xs/normal"), "px-3 py-2 text-foreground-emphasis-low")}>{r.note ?? '—'}</td>
             </tr>
           ))}
         </tbody>
@@ -538,7 +539,7 @@ function ElevationTable({ theme }: { theme: ThemeMode }) {
 
   return (
     <div className="overflow-x-auto rounded-lg border">
-      <table className="w-full min-w-[640px] text-left text-sm">
+      <table className={cn(typeToken("text-sm/normal"), "w-full min-w-[640px] text-left")}>
         <thead>
           <tr className="border-b bg-muted/50">
             <th className="px-3 py-2 font-medium">Level</th>
@@ -553,14 +554,14 @@ function ElevationTable({ theme }: { theme: ThemeMode }) {
           {rows.map((r) => (
             <tr key={r.name} className="border-b border-border/80 last:border-0">
               <td className="px-3 py-2 font-medium">{r.label}</td>
-              <td className="px-3 py-2 font-mono text-xs">{r.name}</td>
+              <td className={cn(typeToken("text-xs/normal"), "px-3 py-2 font-mono")}>{r.name}</td>
               <td className="px-3 py-2 font-mono text-[11px] text-foreground-emphasis-low">{r.tailwindClass}</td>
-              <td className="max-w-[180px] px-3 py-2 font-mono text-[10px] leading-snug text-foreground-emphasis-low">
+              <td className={cn(typeToken("text-10/normal"), "max-w-[180px] px-3 py-2 font-mono leading-snug text-foreground-emphasis-low")}>
                 <span className="line-clamp-3" title={r.raw}>
                   {r.raw}
                 </span>
               </td>
-              <td className="max-w-[220px] px-3 py-2 font-mono text-[10px] leading-snug text-foreground-emphasis-low">
+              <td className={cn(typeToken("text-10/normal"), "max-w-[220px] px-3 py-2 font-mono leading-snug text-foreground-emphasis-low")}>
                 <span className="line-clamp-3" title={r.computed}>
                   {r.computed}
                 </span>
@@ -595,8 +596,8 @@ function SectionHeader({
           <Icon className="size-4 text-foreground opacity-emphasis-low" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
-          <p className="mt-1 max-w-2xl text-sm text-foreground-emphasis-medium">{description}</p>
+          <h2 className={cn(typeToken("text-lg/semibold"), "tracking-tight")}>{title}</h2>
+          <p className={cn(typeToken("text-sm/normal"), "mt-1 max-w-2xl text-foreground-emphasis-medium")}>{description}</p>
         </div>
       </div>
     </div>
@@ -627,10 +628,10 @@ export function ThemeShowcase() {
           ))}
         </div>
 
-        <h3 className="mt-10 mb-1 text-sm font-semibold tracking-tight text-foreground">Sidebar</h3>
-        <p className="mb-4 text-sm text-foreground-emphasis-medium">
-          Tokens from <code className="rounded bg-muted px-1 text-xs">--sidebar*</code> /{' '}
-          <code className="rounded bg-muted px-1 text-xs">@theme</code> color mappings.
+        <h3 className={cn(typeToken("text-sm/semibold"), "mt-10 mb-1 tracking-tight text-foreground")}>Sidebar</h3>
+        <p className={cn(typeToken("text-sm/normal"), "mb-4 text-foreground-emphasis-medium")}>
+          Tokens from <code className={cn(typeToken("text-xs/normal"), "rounded bg-muted px-1")}>--sidebar*</code> /{' '}
+          <code className={cn(typeToken("text-xs/normal"), "rounded bg-muted px-1")}>@theme</code> color mappings.
         </p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {SIDEBAR_COLORS.map((item) => (
@@ -646,12 +647,12 @@ export function ThemeShowcase() {
           description={
             <>
               Optional tokens for softer hierarchy on text and icons. Nothing uses them unless you add{' '}
-              <code className="rounded bg-muted px-1 text-xs">var(--opacity-emphasis-*)</code> or the utilities below.
+              <code className={cn(typeToken("text-xs/normal"), "rounded bg-muted px-1")}>var(--opacity-emphasis-*)</code> or the utilities below.
             </>
           }
         />
         <div className="overflow-x-auto rounded-lg border">
-          <table className="w-full min-w-[520px] text-left text-sm">
+          <table className={cn(typeToken("text-sm/normal"), "w-full min-w-[520px] text-left")}>
             <thead>
               <tr className="border-b bg-muted/50">
                 <th className="px-3 py-2 font-medium">Level</th>
@@ -663,7 +664,7 @@ export function ThemeShowcase() {
             <tbody>
               <tr className="border-b border-border/80">
                 <td className="px-3 py-2 font-medium">High</td>
-                <td className="px-3 py-2 font-mono text-xs">--opacity-emphasis-high</td>
+                <td className={cn(typeToken("text-xs/normal"), "px-3 py-2 font-mono")}>--opacity-emphasis-high</td>
                 <td className="px-3 py-2 text-foreground">0.87 (87%)</td>
                 <td className="px-3 py-2 font-mono text-[11px] text-foreground-emphasis-low">
                   .opacity-emphasis-high · .text-foreground-emphasis-high
@@ -671,7 +672,7 @@ export function ThemeShowcase() {
               </tr>
               <tr className="border-b border-border/80">
                 <td className="px-3 py-2 font-medium">Medium</td>
-                <td className="px-3 py-2 font-mono text-xs">--opacity-emphasis-medium</td>
+                <td className={cn(typeToken("text-xs/normal"), "px-3 py-2 font-mono")}>--opacity-emphasis-medium</td>
                 <td className="px-3 py-2 text-foreground">0.6 (60%)</td>
                 <td className="px-3 py-2 font-mono text-[11px] text-foreground-emphasis-low">
                   .opacity-emphasis-medium · .text-foreground-emphasis-medium
@@ -679,7 +680,7 @@ export function ThemeShowcase() {
               </tr>
               <tr className="border-b border-border/80 last:border-0">
                 <td className="px-3 py-2 font-medium">Low</td>
-                <td className="px-3 py-2 font-mono text-xs">--opacity-emphasis-low</td>
+                <td className={cn(typeToken("text-xs/normal"), "px-3 py-2 font-mono")}>--opacity-emphasis-low</td>
                 <td className="px-3 py-2 text-foreground">0.4 (40%)</td>
                 <td className="px-3 py-2 font-mono text-[11px] text-foreground-emphasis-low">
                   .opacity-emphasis-low · .text-foreground-emphasis-low
@@ -688,19 +689,19 @@ export function ThemeShowcase() {
             </tbody>
           </table>
         </div>
-        <p className="mt-3 text-sm text-foreground-emphasis-medium">
-          Icons: use <code className="rounded bg-muted px-1 text-xs">opacity-emphasis-*</code> on the SVG wrapper, or{' '}
-          <code className="rounded bg-muted px-1 text-xs">
+        <p className={cn(typeToken("text-sm/normal"), "mt-3 text-foreground-emphasis-medium")}>
+          Icons: use <code className={cn(typeToken("text-xs/normal"), "rounded bg-muted px-1")}>opacity-emphasis-*</code> on the SVG wrapper, or{' '}
+          <code className={cn(typeToken("text-xs/normal"), "rounded bg-muted px-1")}>
             {`style={{ opacity: 'var(--opacity-emphasis-medium)' }}`}
           </code>
-          . Text: prefer <code className="rounded bg-muted px-1 text-xs">text-foreground-emphasis-*</code> so only the
+          . Text: prefer <code className={cn(typeToken("text-xs/normal"), "rounded bg-muted px-1")}>text-foreground-emphasis-*</code> so only the
           ink fades (not layout).
         </p>
         <div className="mt-4 rounded-lg border bg-card p-4">
-          <div className="mb-2 text-xs font-medium text-foreground-emphasis-low">
+          <div className={cn(typeToken("text-xs/medium"), "mb-2 text-foreground-emphasis-low")}>
             Examples (explicit classes — not global defaults)
           </div>
-          <div className="flex flex-col gap-3 text-sm">
+          <div className={cn(typeToken("text-sm/normal"), "flex flex-col gap-3")}>
             <div className="flex flex-wrap items-center gap-3">
               <span className="text-foreground-emphasis-high font-medium">High emphasis copy</span>
               <Sparkles className="size-5 text-foreground opacity-emphasis-high" aria-hidden />
@@ -723,17 +724,17 @@ export function ThemeShowcase() {
           title="Padding, gap, margin & radius"
           description={
             <>
-              Tailwind spacing scale: each step is <code className="rounded bg-muted px-1 text-xs">0.25rem</code> per
+              Tailwind spacing scale: each step is <code className={cn(typeToken("text-xs/normal"), "rounded bg-muted px-1")}>0.25rem</code> per
               unit (default). Example at 16px root:{' '}
-              <code className="rounded bg-muted px-1 text-xs">1 → 4px</code>,{' '}
-              <code className="rounded bg-muted px-1 text-xs">2 → 8px</code>. Values below are{' '}
+              <code className={cn(typeToken("text-xs/normal"), "rounded bg-muted px-1")}>1 → 4px</code>,{' '}
+              <code className={cn(typeToken("text-xs/normal"), "rounded bg-muted px-1")}>2 → 8px</code>. Values below are{' '}
               <strong className="font-medium text-foreground">measured in your browser</strong>.
             </>
           }
         />
-        <h3 className="mb-3 text-sm font-medium text-foreground-emphasis-low">Spacing scale</h3>
+        <h3 className={cn(typeToken("text-sm/medium"), "mb-3 text-foreground-emphasis-low")}>Spacing scale</h3>
         <SpacingScaleTable />
-        <h3 className="mb-3 mt-10 text-sm font-medium text-foreground-emphasis-low">Radius variables</h3>
+        <h3 className={cn(typeToken("text-sm/medium"), "mb-3 mt-10 text-foreground-emphasis-low")}>Radius variables</h3>
         <RadiusTable theme={theme} />
 
         <div className="mb-3 mt-10 flex items-start gap-3">
@@ -741,21 +742,21 @@ export function ThemeShowcase() {
             <Layers className="size-4 text-foreground opacity-emphasis-low" aria-hidden />
           </div>
           <div>
-            <h3 className="text-sm font-semibold tracking-tight text-foreground">Elevation tokens</h3>
-            <p className="mt-1 max-w-2xl text-sm text-foreground-emphasis-medium">
-              Semantic <code className="rounded bg-muted px-1 text-xs">--elevation-*</code> box shadows; mapped in{' '}
-              <code className="rounded bg-muted px-1 text-xs">@theme</code> as{' '}
-              <code className="rounded bg-muted px-1 text-xs">shadow-elevation-*</code>. Values differ in{' '}
-              <code className="rounded bg-muted px-1 text-xs">.dark</code> for visible depth on dark surfaces.
+            <h3 className={cn(typeToken("text-sm/semibold"), "tracking-tight text-foreground")}>Elevation tokens</h3>
+            <p className={cn(typeToken("text-sm/normal"), "mt-1 max-w-2xl text-foreground-emphasis-medium")}>
+              Semantic <code className={cn(typeToken("text-xs/normal"), "rounded bg-muted px-1")}>--elevation-*</code> box shadows; mapped in{' '}
+              <code className={cn(typeToken("text-xs/normal"), "rounded bg-muted px-1")}>@theme</code> as{' '}
+              <code className={cn(typeToken("text-xs/normal"), "rounded bg-muted px-1")}>shadow-elevation-*</code>. Values differ in{' '}
+              <code className={cn(typeToken("text-xs/normal"), "rounded bg-muted px-1")}>.dark</code> for visible depth on dark surfaces.
             </p>
           </div>
         </div>
         <ElevationTable theme={theme} />
 
         <div className="mt-6 flex flex-wrap gap-2 rounded-lg border bg-muted/20 p-4">
-          <Button size="sm">Button radius</Button>
+          <Button size="xs">Button radius</Button>
           <Card className="border-0 py-3 shadow-none ring-1 ring-border">
-            <CardContent className="py-0 text-sm">Card sample</CardContent>
+            <CardContent className={cn(typeToken("text-sm/normal"), "py-0")}>Card sample</CardContent>
           </Card>
         </div>
       </section>

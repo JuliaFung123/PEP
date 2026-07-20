@@ -10,12 +10,7 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
-import {
-  AVATAR_NAME_ID_TYPOGRAPHY_ID,
-  AVATAR_NAME_SUBTITLE_TYPOGRAPHY_ID,
-  AVATAR_NAME_TYPOGRAPHY_ID,
-  typographyClassName,
-} from "@/data/typography-samples"
+import { typeToken } from "@/data/typography-tokens"
 import { cn } from "@/lib/utils"
 import {
   Table,
@@ -85,16 +80,16 @@ function AvatarWithNameRow({ size }: { size: AvatarSize }) {
         <AvatarFallback>{AVATAR_IMAGES.shadcn.fallback}</AvatarFallback>
       </Avatar>
       <div className="grid min-w-0 flex-1 text-left leading-tight">
-        <small className={cn("truncate", typographyClassName(AVATAR_NAME_TYPOGRAPHY_ID))}>
+        <small className={cn("truncate", typeToken("text-sm/medium"))}>
           {AVATAR_IMAGES.shadcn.name}
         </small>
         {size === "lg" ? (
-          <p className={cn("truncate", typographyClassName(AVATAR_NAME_ID_TYPOGRAPHY_ID))}>
+          <p className={cn("truncate", typeToken("text-10/normal"))}>
             {AVATAR_IMAGES.shadcn.id}
           </p>
         ) : null}
         {size !== "sm" && size !== "xs" ? (
-          <p className={cn("truncate", typographyClassName(AVATAR_NAME_SUBTITLE_TYPOGRAPHY_ID))}>
+          <p className={cn("truncate", typeToken("text-xs/normal"))}>
             {AVATAR_IMAGES.shadcn.subtitle}
           </p>
         ) : null}
@@ -187,7 +182,7 @@ function AvatarCompositionPreview({
 
 function AvatarSizeCell({ token, heightPx }: { token: string; heightPx: number }) {
   return (
-    <span className="font-mono text-xs text-muted-foreground">
+    <span className={cn(typeToken("text-xs/normal"), "font-mono text-muted-foreground")}>
       {token} = {heightPx}px
     </span>
   )
@@ -198,8 +193,8 @@ function AvatarLibraryPreview() {
     <div className="space-y-0 divide-y rounded-xl border border-border/60 bg-muted">
       <div className="px-4 py-5">
         <Table>
-          <TableCaption className="caption-top mb-3 text-left text-xs font-medium text-muted-foreground">
-            Avatar sizes
+          <TableCaption className={cn(typeToken("text-xs/medium"), "caption-top mb-3 text-left text-muted-foreground")}>
+            Style = Outlined — sizes
           </TableCaption>
           <TableHeader>
             <TableRow>
@@ -233,9 +228,11 @@ function AvatarLibraryPreview() {
 
       <div className="px-4 py-5">
         <Table>
-          <TableCaption className="caption-top mb-3 text-left text-xs font-medium text-muted-foreground">
-            Avatar compositions — set <code className="text-foreground">size</code> on each{" "}
-            <code className="text-foreground">Avatar</code>; badge and group count scale automatically
+          <TableCaption className={cn(typeToken("text-xs/medium"), "caption-top mb-3 text-left text-muted-foreground")}>
+            Style = Outlined — compositions. Set{" "}
+            <code className="text-foreground">size</code> on each{" "}
+            <code className="text-foreground">Avatar</code>; badge and group count scale
+            automatically
           </TableCaption>
           <TableHeader>
             <TableRow>
@@ -277,8 +274,8 @@ export function AvatarsPage() {
   return (
     <PepDesignSystemPage title="Avatars" contentClassName="space-y-10">
       <section>
-        <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">Notes</h2>
-        <p className="text-xs text-muted-foreground">
+        <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>Notes</h2>
+        <p className={cn(typeToken("text-xs/normal"), "text-muted-foreground")}>
           Reference:{" "}
           <a
             href="https://ui.shadcn.com/docs/components/avatar"
@@ -288,7 +285,12 @@ export function AvatarsPage() {
           >
             shadcn Avatar
           </a>
-          . Matches shadcn — no PEP overrides on primitives.{" "}
+          .{" "}
+          <span className="font-medium text-foreground">Style = Outlined only</span> (
+          <code className="rounded bg-muted px-1 text-[11px]">variant=&quot;outlined&quot;</code>{" "}
+          — border ring via{" "}
+          <code className="rounded bg-muted px-1 text-[11px]">::after</code>). No other avatar
+          styles.{" "}
           <code className="rounded bg-muted px-1 text-[11px]">Avatar + name</code> uses Typography →{" "}
           <strong className="font-medium text-foreground">Small</strong> for the name and{" "}
           <strong className="font-medium text-foreground">Caption</strong> for subtitle;{" "}
@@ -300,9 +302,10 @@ export function AvatarsPage() {
       </section>
 
       <section>
-        <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">Avatar library</h2>
-        <p className="mb-4 text-xs text-muted-foreground">
-          Approved PEP avatar sizes and compositions.{" "}
+        <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>Avatar library</h2>
+        <p className={cn(typeToken("text-xs/normal"), "mb-4 text-muted-foreground")}>
+          Approved PEP avatar sizes and compositions —{" "}
+          <span className="font-medium text-foreground">Outlined</span> style only.{" "}
           <span className="font-medium text-foreground">
             Always pick from this section when creating layouts.
           </span>
@@ -311,9 +314,9 @@ export function AvatarsPage() {
       </section>
 
       <section>
-        <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">Pending</h2>
+        <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>Pending</h2>
         <Card>
-          <CardContent className="p-4 text-xs text-muted-foreground">
+          <CardContent className={cn(typeToken("text-xs/normal"), "p-4 text-muted-foreground")}>
             No pending avatar styles. Add new avatar compositions here for review before moving them
             into the Avatar library.
           </CardContent>

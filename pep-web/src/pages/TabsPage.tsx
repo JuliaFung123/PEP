@@ -1,14 +1,7 @@
 import type { ComponentProps } from "react"
 
 import { PepDesignSystemPage } from "@/components/pep-chrome"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Table,
@@ -19,6 +12,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { typeToken } from "@/data/typography-tokens"
+import { cn } from "@/lib/utils"
 
 const TABS_NOTES = [
   {
@@ -61,16 +56,16 @@ const TABS_NOTES = [
 
 function TabsNotesTable() {
   return (
-    <Table className="text-xs">
-      <TableCaption className="caption-top mt-0 mb-2 text-left text-xs text-muted-foreground">
+    <Table className={typeToken("text-xs/normal")}>
+      <TableCaption className={cn(typeToken("text-xs/normal"), "caption-top mt-0 mb-2 text-left text-muted-foreground")}>
         PEP overrides vs stock shadcn — Figma Tab Item has style=default and style=line.
       </TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead className="h-8 w-28 px-2 py-1.5 text-xs">Property</TableHead>
-          <TableHead className="h-8 px-2 py-1.5 text-xs">shadcn</TableHead>
-          <TableHead className="h-8 px-2 py-1.5 text-xs">PEP</TableHead>
-          <TableHead className="h-8 px-2 py-1.5 text-xs">Note</TableHead>
+          <TableHead className={cn(typeToken("text-xs/normal"), "h-8 w-28 px-2 py-1.5")}>Property</TableHead>
+          <TableHead className={cn(typeToken("text-xs/normal"), "h-8 px-2 py-1.5")}>shadcn</TableHead>
+          <TableHead className={cn(typeToken("text-xs/normal"), "h-8 px-2 py-1.5")}>PEP</TableHead>
+          <TableHead className={cn(typeToken("text-xs/normal"), "h-8 px-2 py-1.5")}>Note</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody className="text-muted-foreground">
@@ -107,8 +102,8 @@ export function TabsPage() {
   return (
     <PepDesignSystemPage title="Tabs" contentClassName="space-y-10">
       <section>
-        <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">Notes</h2>
-        <p className="mb-3 text-xs text-muted-foreground">
+        <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>Notes</h2>
+        <p className={cn(typeToken("text-xs/normal"), "mb-3 text-muted-foreground")}>
           References:{" "}
           <a
             href="https://ui.shadcn.com/docs/components/tabs"
@@ -136,34 +131,23 @@ export function TabsPage() {
       </section>
 
       <section>
-        <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">Library</h2>
-        <p className="mb-3 text-xs text-muted-foreground">
+        <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>Library</h2>
+        <p className={cn(typeToken("text-xs/normal"), "mb-3 text-muted-foreground")}>
           <code className="rounded bg-muted px-1 py-0.5 text-[11px]">variant=&quot;default&quot;</code> pill
           track ·{" "}
           <code className="rounded bg-muted px-1 py-0.5 text-[11px]">variant=&quot;line&quot;</code> underline
           (Figma Underline).
         </p>
-        <Card>
-          <CardHeader>
-            <CardTitle>Tabs</CardTitle>
-            <CardDescription className="!text-muted-foreground">
-              Default: muted track 36px / pill 32px · Line: 34px trigger, 1px border → 2px primary.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-6">
-            <div className="space-y-2">
-              <div className="text-xs font-medium text-muted-foreground">Default</div>
-              <TabsDemo variant="default" />
-            </div>
-            <div className="space-y-2">
-              <div className="text-xs font-medium text-muted-foreground">Line</div>
-              <TabsDemo variant="line" />
-            </div>
-          </CardContent>
-          <CardFooter className="text-xs text-muted-foreground">
-            Use Light / Dark in the sidebar to verify tokens.
-          </CardFooter>
-        </Card>
+        <div className="flex flex-col gap-6">
+          <div className="space-y-2">
+            <div className={cn(typeToken("text-xs/medium"), "text-muted-foreground")}>Default</div>
+            <TabsDemo variant="default" />
+          </div>
+          <div className="space-y-2">
+            <div className={cn(typeToken("text-xs/medium"), "text-muted-foreground")}>Line</div>
+            <TabsDemo variant="line" />
+          </div>
+        </div>
       </section>
     </PepDesignSystemPage>
   )

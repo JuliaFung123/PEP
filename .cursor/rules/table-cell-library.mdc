@@ -1,0 +1,49 @@
+---
+description: Table Cell library page workflow — Notes, Library (approved), Pending (review). Follow when building table layouts or discovering new cell compositions.
+globs: "pep-web/src/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Table Cell library (PEP Web)
+
+The **Table Cell** preview page (`/preview/table-cell`, sidebar: **Block → Table Cell**) is the source of truth for table cell compositions. Layouts with tables must follow the three-section model below (same pattern as Field input library).
+
+## Page structure (`TableCellBlockPage.tsx`)
+
+| Section | Purpose | Registry source |
+|--------|---------|-----------------|
+| **Notes** | Primitives + composition rules (`Table` / `TableCell`, nested Avatar, Badge, Checkbox, Button). | Page copy + registry header comment |
+| **Library** | Approved cell compositions — **always pick from here** when building table layouts. | `TABLE_CELL_ROWS` where `tier: 'library'` |
+| **Pending** | New / unseen cell styles under review. Use only when **no Library match** exists. | `TABLE_CELL_ROWS` where `tier: 'pending'` |
+
+## Layout rules (mandatory)
+
+1. **Before coding cells in a layout**, check Library on the Table Cell page (or `TABLE_CELL_LIBRARY_ROWS` in the registry).
+2. **Pick the matching Library row** by name / composition (Text, Person, Badge, Numeric, etc.).
+3. **Compose** using existing primitives — `TableCell`, `Avatar`, `Badge`, `Checkbox`, `Button` — as shown in `TableCellBlockPage.tsx` (`CellPreview`). Do **not** invent parallel cell wrapper components unless the user explicitly requests them.
+4. **If no Library match exists** (unseen cell composition in a new layout / Figma):
+   - Add a row to `table-cell-registry.ts` with `tier: 'pending'` and a short `pendingNote` (source layout / Figma).
+   - Implement the preview in `CellPreview` on `TableCellBlockPage.tsx`.
+   - Use that Pending cell in the layout for review.
+5. **Do not** silently invent one-off cell markup only inside a layout page — always register Pending first.
+6. **When promoting Pending → Library**: set `tier: 'library'`, clear `pendingNote`. User decides promotion; agents may suggest but should not promote without ask.
+
+## Styling
+
+- Prefer nested components inside `TableCell` — no extra bordered chrome around cells
+- Typography: `typographyClassName("table")` for primary labels when matching Library Text
+- Semantic tokens only — no hardcoded hex
+- Alignment / width: use `TableHead` / `TableCell` utilities (`text-right`, `w-*`, `align-top`) as in layout pages
+
+## Files
+
+| File | Role |
+|------|------|
+| `pep-web/src/data/table-cell-registry.ts` | Library / Pending row tiers |
+| `pep-web/src/pages/TableCellBlockPage.tsx` | Notes + catalogs + `CellPreview` compositions |
+| `.cursor/rules/table-cell-library.mdc` | This workflow |
+
+## Related
+
+- Field inputs: `.cursor/rules/field-input-library.mdc` (same § library / pending pattern)
+- Layout Table page: `/preview/table` — may surface Pending candidates

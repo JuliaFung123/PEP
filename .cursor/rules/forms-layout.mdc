@@ -1,0 +1,48 @@
+---
+description: Forms layout — full-page popup recipe (header/Popup + Form Menu + body + Form_bottom). Use when building multi-section form dialogs like 新增活動.
+globs: "pep-web/src/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Forms layout (PEP Web)
+
+Layout page: `/preview/full-page-popup` (sidebar **Layout → full page popup**).
+Canonical Figma: [新增活動 `477:19891`](https://www.figma.com/design/IZ6algHkFp6Z2a5dYiS1hC/PEP?node-id=477-19891).
+Table body Figma: [Timeslots `813:35945`](https://www.figma.com/design/IZ6algHkFp6Z2a5dYiS1hC/PEP?node-id=813-35945).
+
+## Recipe (mandatory)
+
+| Slot | Block / component | Notes |
+|------|-------------------|--------|
+| Dialog shell | `Dialog` + `fullPagePopupDialogContentClassName` | Edge-to-edge (`inset-0`), no margin |
+| Header | `PepPopupHeader` | Figma `header/Popup` — not `PepPageHeader` |
+| Left nav | `FormMenu` + `FormMenuItem` | Block → Form Menu |
+| Body | `LibraryField` in `FormsFieldStack` | Field gap-2 inside; stack gap-6 between fields |
+| Body (table) | Pending Table Cell rows | Register new cells in `table-cell-registry.ts` before use |
+| Footer | `FormBottom` | Figma `Form_bottom` — progress + Cancel / Save |
+| Body surface | `surface="card"` (form) / `"plain"` (table) | Table body: no outline / elevation |
+
+Compose with `FormsLayout` from `@/components/forms-layout`.
+
+## Pending workflow (mandatory)
+
+When a layout introduces **new table cell compositions**, add `tier: 'pending'` rows to `table-cell-registry.ts` and previews in `TableCellBlockPage.tsx` **before** using them in the layout. Same pattern as Field §3 and Block → Table Cell Pending.
+
+## Files
+
+| File | Role |
+|------|------|
+| `components/forms-layout.tsx` | `FormsLayout`, `FormsFieldStack`, `fullPagePopupDialogContentClassName` |
+| `components/pep-chrome.tsx` | `PepPopupHeader` |
+| `components/form-bottom.tsx` | `FormBottom` |
+| `components/form-menu.tsx` | Form Menu |
+| `pages/FormsLayoutPage.tsx` | `FullPagePopupPage` — Layout docs + demos |
+| `pages/FormBottomBlockPage.tsx` | Block → Form bottom |
+| `pages/PopupHeaderBlockPage.tsx` | Block → Header-Popup |
+
+## Anti-patterns
+
+- Using `PepPageHeader` inside a form dialog.
+- Rebuilding progress + Cancel/Save markup instead of `FormBottom`.
+- Page-local field gaps instead of `LibraryField` + `FormsFieldStack`.
+- Dialog inset margin (`inset-3`) on full-page popups — use `fullPagePopupDialogContentClassName`.

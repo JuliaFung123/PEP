@@ -1,6 +1,7 @@
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 
+import { typeToken } from "@/data/typography-tokens"
 import { cn } from "@/lib/utils"
 
 const Dialog = DialogPrimitive.Root
@@ -67,7 +68,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn("text-lg font-semibold leading-7 tracking-tight", className)}
+    className={cn(typeToken("text-lg/semibold"), "leading-7 tracking-tight", className)}
     {...props}
   />
 ))
@@ -79,7 +80,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn(typeToken("text-sm/normal"), "text-muted-foreground", className)}
     {...props}
   />
 ))

@@ -3,6 +3,7 @@ import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { DayPicker, getDefaultClassNames, type DayButton } from 'react-day-picker'
 
 import { Button, buttonVariants } from '@/components/ui/button'
+import { typeToken } from '@/data/typography-tokens'
 import { cn } from '@/lib/utils'
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker> & {
@@ -56,7 +57,8 @@ function Calendar({
           defaultClassNames.month_caption,
         ),
         dropdowns: cn(
-          'flex h-(--cell-size) w-full items-center justify-center gap-1.5 text-sm font-medium',
+          'flex h-(--cell-size) w-full items-center justify-center gap-1.5',
+          typeToken('text-sm/medium'),
           defaultClassNames.dropdowns,
         ),
         dropdown_root: cn(

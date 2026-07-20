@@ -1,6 +1,7 @@
 import { useMemo } from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
+import { typeToken } from "@/data/typography-tokens"
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
@@ -10,7 +11,7 @@ function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
     <fieldset
       data-slot="field-set"
       className={cn(
-        "flex flex-col gap-4 has-[>[data-slot=checkbox-group]]:gap-3 has-[>[data-slot=radio-group]]:gap-3",
+        "group/field-set flex flex-col gap-4 has-[>[data-slot=checkbox-group]]:gap-3 has-[>[data-slot=radio-group]]:gap-3",
         className
       )}
       {...props}
@@ -28,7 +29,7 @@ function FieldLegend({
       data-slot="field-legend"
       data-variant={variant}
       className={cn(
-        "mb-1.5 font-medium data-[variant=label]:text-sm data-[variant=legend]:text-base",
+        "mb-1.5 font-medium data-[variant=label]:text-sm data-[variant=legend]:text-base group-data-[disabled=true]/field-set:opacity-50",
         className
       )}
       {...props}
@@ -118,7 +119,8 @@ function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="field-label"
       className={cn(
-        "flex w-fit items-center gap-2 text-sm font-medium group-data-[disabled=true]/field:opacity-50",
+        "flex w-fit items-center gap-2 group-data-[disabled=true]/field:opacity-50",
+        typeToken("text-sm/medium"),
         className
       )}
       {...props}
@@ -131,8 +133,12 @@ function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
     <p
       data-slot="field-description"
       className={cn(
-        "text-left text-sm leading-normal font-normal text-muted-foreground group-has-data-horizontal/field:text-balance [[data-variant=legend]+&]:-mt-1.5",
-        "last:mt-0 nth-last-2:-mt-1",
+        "text-left leading-4 text-muted-foreground group-has-data-horizontal/field:text-balance [[data-variant=legend]+&]:-mt-1.5",
+        typeToken("text-xs/normal"),
+        // Tighten under label without :nth-last-child — Base UI menus inject
+        // focus-guard spans as Field siblings when open, which broke nth-last-2.
+        "[[data-slot=field-label]+&]:-mt-1 last:mt-0",
+        "group-data-[disabled=true]/field:opacity-50 group-data-[disabled=true]/field-set:opacity-50",
         "[&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
         className
       )}
@@ -153,7 +159,8 @@ function FieldSeparator({
       data-slot="field-separator"
       data-content={!!children}
       className={cn(
-        "relative -my-2 h-5 text-sm group-data-[variant=outline]/field-group:-mb-2",
+        "relative -my-2 h-5 group-data-[variant=outline]/field-group:-mb-2",
+        typeToken("text-sm/normal"),
         className
       )}
       {...props}
@@ -214,7 +221,7 @@ function FieldError({
     <div
       role="alert"
       data-slot="field-error"
-      className={cn("text-sm font-normal text-destructive", className)}
+      className={cn(typeToken("text-xs/normal"), "text-destructive", className)}
       {...props}
     >
       {content}

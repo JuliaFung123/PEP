@@ -11,6 +11,7 @@ import { type MouseEvent, type ReactNode } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { typeToken } from "@/data/typography-tokens"
 
 export const sidebarMenuActionClass =
   "absolute right-1 flex size-5 items-center justify-center rounded-md p-0 text-muted-foreground opacity-0 outline-none transition-opacity focus-visible:opacity-100 focus-visible:ring-3 focus-visible:ring-ring/50 group-hover/menu-item:opacity-100 group-focus-within/menu-item:opacity-100"
@@ -25,7 +26,8 @@ export function MainMenuNavGroupLabel({
   return (
     <span
       className={cn(
-        "flex h-8 w-full min-w-0 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70",
+        "flex h-8 w-full min-w-0 shrink-0 items-center rounded-md px-2 text-sidebar-foreground/70",
+        typeToken("text-xs/medium"),
         disabled && "opacity-50",
       )}
     >
@@ -99,9 +101,9 @@ export function MainMenuTeamSwitcherRow({
       <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
         <Icon className="size-4" aria-hidden />
       </span>
-      <span className="grid min-w-0 flex-1 text-left text-sm leading-tight">
+      <span className={cn(typeToken("text-sm/normal"), "grid min-w-0 flex-1 text-left leading-tight")}>
         <span className="truncate font-medium text-sidebar-foreground">{title}</span>
-        <span className="truncate text-xs text-muted-foreground">{subtitle}</span>
+        <span className={cn(typeToken("text-xs/normal"), "truncate text-muted-foreground")}>{subtitle}</span>
       </span>
       {showChevron ? <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" aria-hidden /> : null}
     </TeamSwitcher>
@@ -273,12 +275,12 @@ export function MainMenuUserMenuRow({
         disabled && "pointer-events-none opacity-50",
       )}
     >
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+      <span className={cn(typeToken("text-xs/medium"), "flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground")}>
         PJ
       </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate font-medium text-foreground">User menu row</span>
-        <span className="block truncate text-xs text-muted-foreground">admin@pep.local</span>
+        <span className={cn(typeToken("text-xs/normal"), "block truncate text-muted-foreground")}>admin@pep.local</span>
       </span>
       <LogOut className="size-4 text-muted-foreground" aria-hidden />
     </UserRow>

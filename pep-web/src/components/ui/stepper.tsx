@@ -2,6 +2,7 @@ import { CheckIcon } from "lucide-react"
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import { typeToken } from "@/data/typography-tokens"
 
 function Stepper({ className, ...props }: React.ComponentProps<"nav">) {
   return (
@@ -62,7 +63,8 @@ function StepperItem({
       <span
         data-slot="stepper-bullet"
         className={cn(
-          "flex size-5 shrink-0 items-center justify-center rounded-full text-xs",
+          "flex size-5 shrink-0 items-center justify-center rounded-full",
+          typeToken("text-xs/medium"),
           selected
             ? "bg-foreground text-background"
             : "border border-foreground text-foreground",
@@ -75,9 +77,9 @@ function StepperItem({
         )}
       </span>
       <span data-slot="stepper-content" className="flex min-w-0 flex-col items-start justify-center">
-        <span className="text-sm leading-5 font-medium text-foreground">{children}</span>
+        <span className={cn(typeToken("text-sm/medium"), "leading-5 text-foreground")}>{children}</span>
         {description ? (
-          <span className="text-xs leading-4 font-normal text-foreground">{description}</span>
+          <span className={cn(typeToken("text-xs/normal"), "leading-4 text-foreground")}>{description}</span>
         ) : null}
       </span>
     </button>

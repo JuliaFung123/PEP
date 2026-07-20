@@ -1,14 +1,8 @@
 import * as React from "react"
 
 import { PepDesignSystemPage, PepTopBar } from "@/components/pep-chrome"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { typeToken } from "@/data/typography-tokens"
+import { cn } from "@/lib/utils"
 
 export function SiteHeaderPage() {
   const [search, setSearch] = React.useState("")
@@ -16,8 +10,8 @@ export function SiteHeaderPage() {
   return (
     <PepDesignSystemPage title="Site header" contentClassName="space-y-10">
       <section>
-        <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">Library</h2>
-        <p className="mb-3 text-xs text-muted-foreground">
+        <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>Library</h2>
+        <p className={cn(typeToken("text-xs/normal"), "mb-3 text-muted-foreground")}>
           No shadcn root component — closest pattern is{" "}
           <a
             href="https://ui.shadcn.com/blocks/sidebar"
@@ -40,30 +34,17 @@ export function SiteHeaderPage() {
           <code className="rounded bg-muted px-1 py-0.5 text-[11px]">Input</code>.
         </p>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Site header</CardTitle>
-            <CardDescription className="!text-muted-foreground">
-              Menu trigger, global search, and utility actions (language / theme / notifications).
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-6">
-            <div className="space-y-3">
-              <div className="text-xs font-medium text-muted-foreground">Default</div>
-              <PepTopBar
-                sticky={false}
-                value={search}
-                onChange={setSearch}
-                searchPlaceholder="Placeholder"
-                languageLabel="繁"
-                className="p-0"
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="text-xs text-muted-foreground">
-            Use Light / Dark in the sidebar to verify tokens.
-          </CardFooter>
-        </Card>
+        <div className="space-y-3">
+          <div className={cn(typeToken("text-xs/medium"), "text-muted-foreground")}>Default</div>
+          <PepTopBar
+            sticky={false}
+            value={search}
+            onChange={setSearch}
+            searchPlaceholder="Placeholder"
+            languageLabel="繁"
+            className="p-0"
+          />
+        </div>
       </section>
     </PepDesignSystemPage>
   )

@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
+import { typeToken } from "@/data/typography-tokens"
 
 /** Figma Pagination Item — 30×30 bordered square (node 2648:238). */
 function PaginationButton({
@@ -20,7 +21,7 @@ function PaginationButton({
     <Button
       type="button"
       variant="outline"
-      size="icon"
+      size="icon-xs"
       data-slot="pagination-button"
       className={cn(
         "size-[30px] shrink-0 rounded-md border-border bg-background shadow-none",
@@ -163,7 +164,7 @@ function PaginationPageStatus({
           onPageChange(Math.min(Math.max(1, next), pageCount))
         }}
       />
-      <span className="text-xs font-medium whitespace-nowrap text-foreground">
+      <span className={cn(typeToken("text-xs/medium"), "whitespace-nowrap text-foreground")}>
         of {pageCount}
       </span>
     </div>
@@ -234,7 +235,7 @@ function PepPagination({
       {variant === "long" ? (
         <>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium whitespace-nowrap text-foreground">
+            <span className={cn(typeToken("text-xs/medium"), "whitespace-nowrap text-foreground")}>
               Row per page
             </span>
             <PaginationRowsSelect

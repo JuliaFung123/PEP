@@ -24,6 +24,7 @@ export type FieldInputId =
   | 'select'
   | 'select-avatar'
   | 'multi'
+  | 'multi-image'
   | 'multi-avatar'
   | 'avatar-group'
   | 'currency'
@@ -71,16 +72,46 @@ export const FIELD_FRAMEWORK_DIFFERENCES: FieldFrameworkDifference[] = [
     programmerNote: 'Compose in-page; see §2 Select / Multi rows. No separate Select component file.',
   },
   {
+    property: 'Disabled',
+    shadcn: 'opacity-50 on control',
+    pep: 'opacity-50 (same as Checkbox / Radio)',
+    programmerNote:
+      'Native disabled + inputSurfaceDisabledClassName use opacity-50 only — no bg-input fill. Field chrome (label / descriptions) also opacity-50 via data-disabled on Field.',
+  },
+  {
+    property: 'Invalid / error ring',
+    shadcn: 'aria-invalid on each control',
+    pep: 'One shell owns the ring',
+    programmerNote:
+      'Put aria-invalid (or forced invalid class) only on the chrome owner. Nested Input/Button inside a composed surface use inputInnerControlClassName — never fan out rings to children. Field-group rows: each box is a LibraryFieldGroupItem with its own FieldError + invalid ring (no shared wrapper ring).',
+  },
+  {
     property: 'Field wrapper',
     shadcn: 'Field, FieldLabel, FieldError',
     pep: 'Same primitives',
-    programmerNote: 'Invalid state: data-invalid on Field + aria-invalid on control.',
+    programmerNote:
+      'Invalid state: data-invalid on Field + aria-invalid on the surface owner. FieldSet legend turns red when any LibraryFieldGroupItem has an error; errors live under each box, not at FieldSet level.',
   },
   {
     property: 'Shared chrome',
     shadcn: 'Classes inline on Input',
     pep: 'inputSurfaceClassName export',
-    programmerNote: 'Import from @/lib/input-surface-classes for Input, textarea, and trigger shells.',
+    programmerNote:
+      'Import from @/lib/input-surface-classes. Compositions: surface + inputInnerControlClassName; multi-box rows: one invalid paint per box.',
+  },
+  {
+    property: 'Image-S / Image-L',
+    shadcn: 'Single upload control',
+    pep: 'Multi grid: leading blank tile + ImageFile tiles',
+    programmerNote:
+      'Figma 封面 (204:6703): leading dashed tile opens file browser (+ / or / library); filled tiles same size; drag handle reorders. Image-S 100×100; Image-L 160×160.',
+  },
+  {
+    property: 'Multi / Multi Image / Multi Avatar',
+    shadcn: 'Combobox / custom listbox',
+    pep: 'Shared field-multi-selects + DropdownMenuCheckboxItem',
+    programmerNote:
+      'Compose from @/components/field-multi-selects. Same controls on Field page and Dropdown Menu library. Multi=Light badges; Multi Image=BadgeImage; Multi Avatar=BadgeAvatar outline.',
   },
 ]
 
@@ -103,13 +134,14 @@ export const FIELD_INPUT_ROWS: FieldInputRow[] = [
   { id: 'time', figmaName: 'Time', tier: 'library', section: 'field' },
   { id: 'select', figmaName: 'Select', tier: 'library', section: 'field' },
   { id: 'multi', figmaName: 'Multi', tier: 'library', section: 'field' },
+  { id: 'multi-image', figmaName: 'Multi Image', tier: 'library', section: 'field' },
+  { id: 'multi-avatar', figmaName: 'Multi Avatar', tier: 'library', section: 'field' },
   { id: 'currency', figmaName: 'Currency', tier: 'library', section: 'field' },
   { id: 'phone', figmaName: 'Phone', tier: 'library', section: 'field' },
   { id: 'file', figmaName: 'file', tier: 'library', section: 'field' },
   { id: 'language', figmaName: 'Language', tier: 'library', section: 'field' },
   { id: 'textarea-language', figmaName: 'Textarea+Language', tier: 'library', section: 'field' },
   { id: 'select-avatar', figmaName: 'Select Avatar', tier: 'library', section: 'field' },
-  { id: 'multi-avatar', figmaName: 'Multi Avatar', tier: 'library', section: 'field' },
   { id: 'avatar-group', figmaName: 'Avatar Group', tier: 'library', section: 'field' },
   { id: 'file-large', figmaName: 'file Large', tier: 'library', section: 'field' },
   { id: 'image-l', figmaName: 'Image-L', tier: 'library', section: 'field' },

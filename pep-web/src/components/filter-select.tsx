@@ -26,7 +26,7 @@ export function FilterSelect<T extends string>({
         <Button
           type="button"
           variant="outline"
-          size="sm"
+          size="xs"
           className={cn("min-w-[8.5rem] justify-between gap-2 font-normal shadow-elevation-sm", className)}
         >
           <span className="truncate">{label}</span>

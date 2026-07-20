@@ -3,6 +3,7 @@ import * as React from "react"
 
 import { HoverAction } from "@/components/ui/hover-action"
 import { cn } from "@/lib/utils"
+import { typeToken } from "@/data/typography-tokens"
 
 export type ImageFileStyle = "grid" | "list"
 export type ImageFileSize = "sm" | "default" | "lg"
@@ -54,7 +55,7 @@ function FilePlaceholder({
     <div className="flex size-full flex-col items-center justify-center gap-1 px-px">
       <PaperclipIcon className={cn("text-muted-foreground", iconClass)} aria-hidden />
       {showLabel ? (
-        <span className="truncate text-sm leading-5 text-muted-foreground">{label}</span>
+        <span className={cn(typeToken("text-sm/normal"), "truncate leading-5 text-muted-foreground")}>{label}</span>
       ) : null}
     </div>
   )
@@ -80,7 +81,8 @@ function ImageFile({
   const isList = styleVariant === "list"
   const placeholderLabel =
     fileLabel ?? (size === "lg" ? "filename.pdf" : size === "default" ? "pdf" : undefined)
-  const showOverlay = Boolean(onEdit || onDelete || showDrag)
+  /** Empty (no `src`) never shows hover actions — placeholders are non-interactive. */
+  const showOverlay = Boolean(src) && Boolean(onEdit || onDelete || showDrag)
 
   return (
     <div
@@ -89,7 +91,8 @@ function ImageFile({
       data-size={size}
       data-selected={selected ? "true" : "false"}
       className={cn(
-        "group/hover-host relative flex bg-background",
+        "relative flex bg-background",
+        showOverlay && "group/hover-host",
         selected ? "border-2 border-ring" : "border border-border",
         isList
           ? cn(
@@ -136,19 +139,19 @@ function ImageFile({
         >
           {size === "sm" ? (
             <div className="flex w-full items-center gap-2">
-              <p className="min-w-0 flex-1 truncate text-sm leading-5 text-foreground">
+              <p className={cn(typeToken("text-sm/normal"), "min-w-0 flex-1 truncate leading-5 text-foreground")}>
                 {filename}
               </p>
-              <p className="shrink-0 text-xs leading-4 text-muted-foreground">{filesize}</p>
+              <p className={cn(typeToken("text-xs/normal"), "shrink-0 leading-4 text-muted-foreground")}>{filesize}</p>
             </div>
           ) : (
             <>
-              <p className="w-full truncate text-sm leading-5 text-foreground">{filename}</p>
-              <p className="w-full truncate text-xs leading-4 text-muted-foreground">{filesize}</p>
+              <p className={cn(typeToken("text-sm/normal"), "w-full truncate leading-5 text-foreground")}>{filename}</p>
+              <p className={cn(typeToken("text-xs/normal"), "w-full truncate leading-4 text-muted-foreground")}>{filesize}</p>
             </>
           )}
           {path ? (
-            <p className="truncate text-xs leading-4 text-muted-foreground">{path}</p>
+            <p className={cn(typeToken("text-xs/normal"), "truncate leading-4 text-muted-foreground")}>{path}</p>
           ) : null}
         </div>
       ) : null}

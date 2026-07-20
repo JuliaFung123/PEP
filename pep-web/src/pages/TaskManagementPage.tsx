@@ -16,7 +16,11 @@ import {
 import * as React from "react"
 
 import { FilterSelect } from "@/components/filter-select"
-import { PepFilterRow, PepPageHeader } from "@/components/pep-chrome"
+import {
+  pepAppContentClass,
+  PepFilterRow,
+  PepPageHeader,
+} from "@/components/pep-chrome"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -42,6 +46,7 @@ import {
   filterTasks,
   MOCK_TASKS,
 } from "@/data/tasks-mock"
+import { typeToken } from "@/data/typography-tokens"
 
 const STATUS_OPTIONS = [
   { value: "all" as const, label: "All Status" },
@@ -185,7 +190,7 @@ function TasksPagination({
   const to = Math.min((pageIndex + 1) * TASKS_PAGE_SIZE, total)
   return (
     <div className="flex flex-col gap-3 border-t border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm text-muted-foreground">
+      <p className={cn(typeToken("text-sm/normal"), "text-muted-foreground")}>
         Showing{" "}
         <span className="tabular-nums text-foreground">{from}</span>
         {"–"}
@@ -193,7 +198,7 @@ function TasksPagination({
         <span className="tabular-nums text-foreground">{total}</span>
       </p>
       <div className="flex flex-wrap items-center gap-1">
-        <Button type="button" variant="outline" size="sm" disabled={pageIndex <= 0} onClick={() => onPageChange(pageIndex - 1)}>
+        <Button type="button" variant="outline" size="xs" disabled={pageIndex <= 0} onClick={() => onPageChange(pageIndex - 1)}>
           Prev
         </Button>
         {Array.from({ length: pageCount }, (_, i) => (
@@ -201,7 +206,7 @@ function TasksPagination({
             key={i}
             type="button"
             variant={pageIndex === i ? "default" : "outline"}
-            size="sm"
+            size="xs"
             className="min-w-8 px-2"
             onClick={() => onPageChange(i)}
             aria-current={pageIndex === i ? "page" : undefined}
@@ -212,7 +217,7 @@ function TasksPagination({
         <Button
           type="button"
           variant="outline"
-          size="sm"
+          size="xs"
           disabled={pageIndex >= pageCount - 1}
           onClick={() => onPageChange(pageIndex + 1)}
         >
@@ -236,7 +241,7 @@ function KanbanBoard({ tasks }: { tasks: Task[] }) {
 
   const Lane = ({ title, items }: { title: string; items: Task[] }) => (
     <div className="flex min-h-0 min-w-[220px] flex-1 flex-col rounded-xl border border-border bg-muted/20">
-      <div className="border-b border-border px-3 py-2 text-sm font-medium">
+      <div className={cn(typeToken("text-sm/medium"), "border-b border-border px-3 py-2")}>
         {title}
         <span className="ml-1.5 text-muted-foreground">({items.length})</span>
       </div>
@@ -260,7 +265,7 @@ function KanbanBoard({ tasks }: { tasks: Task[] }) {
                 />
                 <div className="min-w-0">
                   <p className="font-medium leading-snug">{t.title}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
+                  <p className={cn(typeToken("text-xs/normal"), "mt-0.5 text-muted-foreground")}>
                     #{t.id.toLowerCase()} · {t.customerName}
                   </p>
                 </div>
@@ -333,16 +338,19 @@ export function TaskManagementPage() {
   }, [])
 
   return (
-    <div className="flex min-h-0 w-full flex-1 flex-col bg-background">
+    <div className="flex w-full flex-col bg-background">
+      <div className={pepAppContentClass}>
       <PepPageHeader
         title="Support Tasks"
+        innerClassName="px-0"
         actions={
-          <Button type="button" size="icon" className="size-9 shrink-0 rounded-md shadow-elevation-sm" aria-label="New task">
+          <Button type="button" size="icon" className="shrink-0 rounded-md shadow-elevation-sm" aria-label="New task">
             <Plus className="size-4" aria-hidden />
           </Button>
         }
       />
       <PepFilterRow
+        className="px-0"
         left={
           <>
             <div className="relative min-h-9 w-full min-w-[200px] max-w-[340px]">
@@ -386,7 +394,7 @@ export function TaskManagementPage() {
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
+                size="xs"
                 className="gap-1.5 border-primary/25 bg-primary/5 shadow-elevation-sm"
                 disabled={activeFilterCount === 0}
                 onClick={() => activeFilterCount > 0 && clearFacetFilters()}
@@ -404,7 +412,7 @@ export function TaskManagementPage() {
                 </Badge>
               ) : null}
             </span>
-            <Button type="button" variant="outline" size="sm" className="gap-1.5 shadow-elevation-sm">
+            <Button type="button" variant="outline" size="xs" className="gap-1.5 shadow-elevation-sm">
               <Download className="size-4" aria-hidden />
               Export
             </Button>
@@ -415,7 +423,7 @@ export function TaskManagementPage() {
             <Button
               type="button"
               variant={view === "table" ? "secondary" : "ghost"}
-              size="sm"
+              size="xs"
               className="gap-1.5 rounded-md"
               onClick={() => setView("table")}
             >
@@ -425,7 +433,7 @@ export function TaskManagementPage() {
             <Button
               type="button"
               variant={view === "kanban" ? "secondary" : "ghost"}
-              size="sm"
+              size="xs"
               className="gap-1.5 rounded-md"
               onClick={() => setView("kanban")}
             >
@@ -436,8 +444,7 @@ export function TaskManagementPage() {
         }
       />
 
-      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 px-6 py-4">
-        <p className="text-sm text-muted-foreground">
+        <p className={cn(typeToken("text-sm/normal"), "text-muted-foreground")}>
           <span className="font-medium text-foreground">{filtered.length}</span> tickets
           {escalatedN > 0 ? (
             <>
@@ -449,8 +456,8 @@ export function TaskManagementPage() {
         </p>
 
         {view === "table" ? (
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card shadow-elevation-sm">
-              <div className="min-h-0 flex-1 overflow-x-auto">
+            <div className="flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-elevation-sm">
+              <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -476,7 +483,7 @@ export function TaskManagementPage() {
                         <TableCell>
                           <div className="min-w-0">
                             <p className="font-medium leading-snug">{task.title}</p>
-                            <p className="mt-0.5 text-xs text-muted-foreground">
+                            <p className={cn(typeToken("text-xs/normal"), "mt-0.5 text-muted-foreground")}>
                               #{task.id.toLowerCase()} · {task.customerName} ·{" "}
                               <span className="font-mono">{task.customerId}</span>
                             </p>
@@ -499,25 +506,25 @@ export function TaskManagementPage() {
                         <TableCell>
                           <div className="flex flex-col gap-0.5">
                             <span>{task.assignedName}</span>
-                            <span className="text-xs text-muted-foreground">{task.assignedTeam}</span>
+                            <span className={cn(typeToken("text-xs/normal"), "text-muted-foreground")}>{task.assignedTeam}</span>
                           </div>
                         </TableCell>
                         <TableCell className="text-muted-foreground">{task.propertyUnit}</TableCell>
-                        <TableCell className="text-sm">
+                        <TableCell className={typeToken("text-sm/normal")}>
                           <SlaCell task={task} />
                         </TableCell>
-                        <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
+                        <TableCell className={cn(typeToken("text-sm/normal"), "whitespace-nowrap text-muted-foreground")}>
                           {formatDistanceToNow(new Date(task.openedAt), { addSuffix: true })}
                         </TableCell>
-                        <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
+                        <TableCell className={cn(typeToken("text-sm/normal"), "whitespace-nowrap text-muted-foreground")}>
                           {formatDistanceToNow(new Date(task.updatedAt), { addSuffix: true })}
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
-                            <Button type="button" variant="outline" size="sm">
+                            <Button type="button" variant="outline" size="xs">
                               View
                             </Button>
-                            <Button type="button" variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
+                            <Button type="button" variant="outline" size="xs" className="text-destructive hover:bg-destructive/10">
                               Escalate
                             </Button>
                           </div>

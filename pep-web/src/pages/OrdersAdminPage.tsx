@@ -35,6 +35,7 @@ import {
   orderTotal,
 } from "@/data/orders-mock"
 import { cn } from "@/lib/utils"
+import { typeToken } from "@/data/typography-tokens"
 
 const ORDER_DATE_FORMAT = "yyyy/MM/dd HH:mm" as const
 
@@ -49,7 +50,8 @@ function CustomerAvatar({ name, className }: { name: string; className?: string 
   return (
     <div
       className={cn(
-        "flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-foreground ring-1 ring-border",
+        "flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-foreground ring-1 ring-border",
+        typeToken("text-xs/medium"),
         className,
       )}
       aria-hidden
@@ -90,7 +92,7 @@ function OrdersPagination({
 
   return (
     <div className="flex flex-col gap-3 border-t border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm text-muted-foreground">
+      <p className={cn(typeToken("text-sm/normal"), "text-muted-foreground")}>
         Showing{" "}
         <span className="tabular-nums text-foreground">{from}</span>
         {"–"}
@@ -178,7 +180,7 @@ function OrdersTable({ orders, onSelect }: { orders: Order[]; onSelect: (id: str
                 <CustomerAvatar name={order.customerName} />
                 <div className="flex min-w-0 flex-col gap-0.5">
                   <span className="truncate">{order.customerName}</span>
-                  <span className="truncate font-mono text-xs text-muted-foreground">{order.customerId}</span>
+                  <span className={cn(typeToken("text-xs/normal"), "truncate font-mono text-muted-foreground")}>{order.customerId}</span>
                 </div>
               </div>
             </TableCell>
@@ -219,18 +221,18 @@ function OrderDetailPanelBody({ order }: { order: Order }) {
   return (
     <div className="space-y-6 p-4">
       <div>
-        <h3 className="text-sm font-medium text-foreground">Customer</h3>
+        <h3 className={cn(typeToken("text-sm/medium"), "text-foreground")}>Customer</h3>
         <div className="mt-2 flex items-center gap-3">
-          <CustomerAvatar name={order.customerName} className="size-10 text-sm" />
+          <CustomerAvatar name={order.customerName} className={cn(typeToken("text-sm/normal"), "size-10")} />
           <div className="min-w-0">
-            <p className="text-sm font-medium text-foreground">{order.customerName}</p>
-            <p className="truncate font-mono text-sm text-muted-foreground">{order.customerId}</p>
+            <p className={cn(typeToken("text-sm/medium"), "text-foreground")}>{order.customerName}</p>
+            <p className={cn(typeToken("text-sm/normal"), "truncate font-mono text-muted-foreground")}>{order.customerId}</p>
           </div>
         </div>
       </div>
 
       <div>
-        <h3 className="text-sm font-medium text-foreground">Activity tickets</h3>
+        <h3 className={cn(typeToken("text-sm/medium"), "text-foreground")}>Activity tickets</h3>
         <Table className="mt-3">
           <TableHeader>
             <TableRow>
@@ -259,11 +261,18 @@ function OrderDetailPanelBody({ order }: { order: Order }) {
                       <span className="min-w-0 leading-snug">{li.label}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-right tabular-nums">{li.quantity}</TableCell>
-                  <TableCell className="text-right tabular-nums text-muted-foreground">
+                  <TableCell className={cn(typeToken("text-sm/medium"), "text-right tabular-nums")}>
+                    {li.quantity}
+                  </TableCell>
+                  <TableCell
+                    className={cn(
+                      typeToken("text-sm/medium"),
+                      "text-right tabular-nums text-muted-foreground",
+                    )}
+                  >
                     {formatMoney(li.unitPriceCents)}
                   </TableCell>
-                  <TableCell className="text-right tabular-nums font-medium">
+                  <TableCell className={cn(typeToken("text-sm/medium"), "text-right tabular-nums")}>
                     {formatMoney(sub)}
                   </TableCell>
                 </TableRow>
@@ -272,7 +281,7 @@ function OrderDetailPanelBody({ order }: { order: Order }) {
           </TableBody>
         </Table>
         <div className="mt-3 flex justify-end border-t border-border pt-3">
-          <p className="text-sm">
+          <p className={typeToken("text-sm/normal")}>
             <span className="text-muted-foreground">Total </span>
             <span className="font-semibold tabular-nums">{formatMoney(total)}</span>
           </p>
@@ -450,7 +459,7 @@ export function OrdersAdminPage({ pathname, onNavigate }: OrdersAdminPageProps) 
             <>
               <SheetHeader className="flex-row items-start justify-between gap-3 space-y-0 border-b px-4 py-3.5 pr-3">
                 <div className="min-w-0 space-y-1.5">
-                  <SheetTitle className="flex items-center gap-2 pr-2 text-left text-base leading-snug">
+                  <SheetTitle className={cn(typeToken("text-base/normal"), "flex items-center gap-2 pr-2 text-left leading-snug")}>
                     <Package className="size-4 shrink-0 text-muted-foreground" aria-hidden />
                     <span className="truncate">{order.id}</span>
                   </SheetTitle>

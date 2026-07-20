@@ -1,0 +1,55 @@
+---
+description: Dropdown Menu library — Notes, Library (menu item + Field Multi compositions), Pending. Use when adding menu list-item styles or Field multi shells.
+globs: "pep-web/src/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Dropdown Menu library (PEP Web)
+
+The **Dropdown menu** preview page (`/preview/dropdown-menu`) is the source of truth for menu list-item compositions and Field Multi shells that open a menu.
+
+## Page structure (`DropdownMenuPage.tsx`)
+
+| Section | Purpose | Registry |
+|--------|---------|----------|
+| **Notes** | shadcn Dropdown Menu + Figma Menu Item styles | Page copy |
+| **Library → Menu items** | One card per list-item composition | `section: 'menu-item'`, `tier: 'library'` |
+| **Library → Field compositions** | Multi / Multi Image / Multi Avatar | `section: 'field-composition'` |
+| **Pending** | New styles under review | `tier: 'pending'` |
+
+## Figma Menu Item styles (`2740:597`)
+
+| Figma `style` | Registry id | Compose with |
+|---------------|-------------|--------------|
+| Text | `text` | `DropdownMenuItem` (+ shortcut / arrow) |
+| LeadingCheck | `leading-check` | `DropdownMenuItem` + `CheckIcon` / spacer |
+| TrailingCheck | `trailing-check` | `DropdownMenuCheckboxItem` |
+| Icon | `icon` | `DropdownMenuItem` + leading icon |
+| Icon+TrailingCheck | `icon-trailing-check` | `DropdownMenuCheckboxItem` + leading icon |
+
+## Adding a new list style (mandatory)
+
+1. Add a row to `DROPDOWN_MENU_STYLE_ROWS` in `dropdown-menu-registry.ts` (`tier: 'pending'`).
+2. Add a `StylePreview` case on `DropdownMenuPage.tsx` (always-visible `MenuSurface` preferred).
+3. Promote to `tier: 'library'` only when the user asks.
+
+## Layout rules
+
+1. Before coding a menu, pick a **Library** row by Figma style / behaviour.
+2. Reuse shadcn primitives from `@/components/ui/dropdown-menu` — do not fork item chrome per page.
+3. Field Multi shells: `@/components/field-multi-selects` + `LibraryField` (same as Field §2).
+
+## Files
+
+| File | Role |
+|------|------|
+| `pep-web/src/data/dropdown-menu-registry.ts` | Library / Pending catalog |
+| `pep-web/src/pages/DropdownMenuPage.tsx` | Catalog UI + previews |
+| `pep-web/src/components/ui/dropdown-menu.tsx` | Primitives |
+| `pep-web/src/components/field-multi-selects.tsx` | Field Multi shells |
+
+## Anti-patterns
+
+- Burying every style inside one interactive mega-menu (hard to scan / manage).
+- Page-local item markup that is not a registry row.
+- Duplicating Multi field chrome instead of `field-multi-selects`.

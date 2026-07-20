@@ -1,14 +1,6 @@
 import * as React from "react"
 
 import { PepDesignSystemPage } from "@/components/pep-chrome"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import { Stepper, StepperItem, StepperSeparator } from "@/components/ui/stepper"
 import {
   Table,
@@ -19,6 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { typeToken } from "@/data/typography-tokens"
+import { cn } from "@/lib/utils"
 
 const STEP_STATES = [
   { selected: true, label: "Selected" },
@@ -59,8 +53,8 @@ export function SteppersPage() {
   return (
     <PepDesignSystemPage title="Steppers" contentClassName="space-y-10">
       <section>
-        <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">Notes</h2>
-        <p className="mb-3 text-xs text-muted-foreground">
+        <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>Notes</h2>
+        <p className={cn(typeToken("text-xs/normal"), "mb-3 text-muted-foreground")}>
           No shadcn Stepper — PEP Figma component. Reference:{" "}
           <a
             href="https://www.figma.com/design/bRDWHAITfr5p6onqnKTf0q/--PEP-Web_Library?node-id=4967-1966"
@@ -77,8 +71,8 @@ export function SteppersPage() {
       </section>
 
       <section>
-        <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">Library</h2>
-        <p className="mb-4 text-xs text-muted-foreground">
+        <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>Library</h2>
+        <p className={cn(typeToken("text-xs/normal"), "mb-4 text-muted-foreground")}>
           Approved PEP stepper compositions.{" "}
           <span className="font-medium text-foreground">
             Always pick a stepper from this section when creating layouts.
@@ -88,7 +82,7 @@ export function SteppersPage() {
         <div className="space-y-0 divide-y rounded-xl border border-border/60 bg-muted">
           <div className="px-4 py-5">
             <Table>
-              <TableCaption className="caption-top mb-3 text-left text-xs font-medium text-muted-foreground">
+              <TableCaption className={cn(typeToken("text-xs/medium"), "caption-top mb-3 text-left text-muted-foreground")}>
                 Step item — state × number / icon
               </TableCaption>
               <TableHeader>
@@ -102,7 +96,7 @@ export function SteppersPage() {
                 {STEP_STATES.map((row) => (
                   <TableRow key={row.label}>
                     <TableCell>
-                      <span className="font-mono text-xs text-muted-foreground">{row.label}</span>
+                      <span className={cn(typeToken("text-xs/normal"), "font-mono text-muted-foreground")}>{row.label}</span>
                     </TableCell>
                     <TableCell>
                       <StepperItem selected={row.selected} icon={false} step={1}>
@@ -121,20 +115,7 @@ export function SteppersPage() {
           </div>
 
           <div className="px-4 py-5">
-            <Card className="border-0 bg-transparent shadow-none ring-0">
-              <CardHeader className="px-0 pt-0">
-                <CardTitle>Sequence</CardTitle>
-                <CardDescription className="!text-muted-foreground">
-                  Click a step to jump. Completed steps use the check icon.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="px-0">
-                <SequenceDemo />
-              </CardContent>
-              <CardFooter className="px-0 text-xs text-muted-foreground">
-                Use Light / Dark in the sidebar to verify tokens.
-              </CardFooter>
-            </Card>
+            <SequenceDemo />
           </div>
         </div>
       </section>

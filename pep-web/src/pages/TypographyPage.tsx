@@ -11,41 +11,43 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { THEME_TYPOGRAPHY_SAMPLES } from "@/data/typography-samples"
+import { typeTokensBySize } from "@/data/typography-tokens"
+import { typeToken } from "@/data/typography-tokens"
+import { cn } from "@/lib/utils"
 
 const TYPOGRAPHY_NOTES = [
   {
-    property: "H5 / H6",
-    shadcn: "—",
-    pep: "Adds H5, H6",
-    note: "Heading scale extension — 18px / 28px and 16px / 24px (`text-lg` / `text-base`).",
+    property: "Token shape",
+    shadcn: "H1 / Muted / Lead…",
+    pep: "`text-{size}/{weight}`",
+    note: "Matches Figma (e.g. text-2xl/medium). Size + weight only — no color.",
   },
   {
-    property: "Caption",
-    shadcn: "—",
-    pep: "Adds Caption",
-    note: "Secondary lines — 12px / 16px (`text-xs` default line-height). Used in Avatar + name subtitle.",
+    property: "Color",
+    shadcn: "Often baked in",
+    pep: "At call site",
+    note: "cn(typeToken(\"text-sm/medium\"), \"text-muted-foreground\")",
   },
   {
-    property: "ID",
-    shadcn: "—",
-    pep: "Adds ID",
-    note: "Numeric identifiers only — 10px / 12px, tabular-nums. Used in Avatar + name (`lg`).",
+    property: "Font stack",
+    shadcn: "system / Inter",
+    pep: "Noto Sans SC → system CJK → system-ui",
+    note: "SC + Latin share Noto Sans SC. Traditional via lang → Noto Sans TC.",
   },
 ] as const
 
 function TypographyNotesTable() {
   return (
-    <Table className="text-xs">
-      <TableCaption className="caption-top mt-0 mb-2 text-left text-xs text-muted-foreground">
-        PEP additions vs stock shadcn typography — omit rows when behaviour matches shadcn default.
+    <Table className={typeToken("text-xs/normal")}>
+      <TableCaption className={cn(typeToken("text-xs/normal"), "caption-top mt-0 mb-2 text-left text-muted-foreground")}>
+        Product API is size+weight tokens (Figma). shadcn compositions are docs-only.
       </TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead className="h-8 w-24 px-2 py-1.5 text-xs">Property</TableHead>
-          <TableHead className="h-8 px-2 py-1.5 text-xs">shadcn</TableHead>
-          <TableHead className="h-8 px-2 py-1.5 text-xs">PEP</TableHead>
-          <TableHead className="h-8 px-2 py-1.5 text-xs">Note</TableHead>
+          <TableHead className={cn(typeToken("text-xs/normal"), "h-8 w-24 px-2 py-1.5")}>Property</TableHead>
+          <TableHead className={cn(typeToken("text-xs/normal"), "h-8 px-2 py-1.5")}>shadcn</TableHead>
+          <TableHead className={cn(typeToken("text-xs/normal"), "h-8 px-2 py-1.5")}>PEP</TableHead>
+          <TableHead className={cn(typeToken("text-xs/normal"), "h-8 px-2 py-1.5")}>Note</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody className="text-muted-foreground">
@@ -63,62 +65,61 @@ function TypographyNotesTable() {
 }
 
 export function TypographyPage() {
+  const groups = typeTokensBySize()
+
   return (
     <PepDesignSystemPage title="Typography" contentClassName="space-y-10">
       <section>
-        <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">Notes</h2>
-        <p className="mb-3 text-xs text-muted-foreground">
-          Reference:{" "}
-          <a
-            href="https://ui.shadcn.com/docs/components/typography"
-            target="_blank"
-            rel="noreferrer"
-            className="text-foreground underline underline-offset-2 hover:text-foreground/80"
-          >
-            shadcn Typography
-          </a>
-          .{" "}
-          <span className="font-medium text-foreground">
-            Always pick a typography token from the library below — do not invent one-off font sizes or
-            weights.
-          </span>{" "}
-          Reference ids via <code className="rounded bg-muted px-1 text-[11px]">typographyClassName()</code>{" "}
-          in <code className="rounded bg-muted px-1 text-[11px]">typography-samples.ts</code>.
+        <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>Notes</h2>
+        <p className={cn(typeToken("text-xs/normal"), "mb-3 text-muted-foreground")}>
+          Use{" "}
+          <code className="rounded bg-muted px-1 text-[11px]">typeToken(&quot;text-sm/medium&quot;)</code>{" "}
+          from <code className="rounded bg-muted px-1 text-[11px]">typography-tokens.ts</code>. Apply
+          color separately. Demo lines are mixed{" "}
+          <span className="font-medium text-foreground">EN · 简 · 繁</span> in one paragraph.
         </p>
         <TypographyNotesTable />
       </section>
 
       <section>
-        <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">Font size tokens</h2>
-        <p className="mb-4 text-xs text-muted-foreground">
-          Tailwind <code className="rounded bg-muted px-1 text-[11px]">text-*</code> scale at 16px root.
-          Default line-height applies unless a typography token overrides it (e.g.{" "}
-          <code className="rounded bg-muted px-1 text-[11px]">leading-7</code>,{" "}
-          <code className="rounded bg-muted px-1 text-[11px]">leading-none</code>). Pick sizes from this
-          table — do not invent arbitrary <code className="rounded bg-muted px-1 text-[11px]">text-[Npx]</code>{" "}
-          values except the approved <code className="rounded bg-muted px-1 text-[11px]">ID</code> token.
+        <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>Font size scale</h2>
+        <p className={cn(typeToken("text-xs/normal"), "mb-4 text-muted-foreground")}>
+          Tailwind <code className="rounded bg-muted px-1 text-[11px]">text-*</code> sizes at 16px root
+          (default line-height unless a token overrides, e.g.{" "}
+          <code className="rounded bg-muted px-1 text-[11px]">text-2xl/medium</code> →{" "}
+          <code className="rounded bg-muted px-1 text-[11px]">leading-8</code>).
         </p>
         <TypographyFontSizeTable />
       </section>
 
       <section>
-        <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">Typography library</h2>
-        <p className="mb-4 text-xs text-muted-foreground">
-          Font metrics shown are measured in your browser (family · size / line-height).
+        <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>
+          Type tokens (size + weight)
+        </h2>
+        <p className={cn(typeToken("text-xs/normal"), "mb-4 text-muted-foreground")}>
+          Figma-style ids. Metrics measured in your browser (family · size / line-height · weight).
         </p>
-        <div className="flex flex-col gap-2">
-          {THEME_TYPOGRAPHY_SAMPLES.map((sample) => (
-            <TypographyTypeRow key={sample.id} sample={sample} />
+        <div className="flex flex-col gap-8">
+          {groups.map(({ size, tokens }) => (
+            <div key={size}>
+              <h3 className={cn(typeToken("text-xs/semibold"), "mb-2 tracking-tight text-foreground")}>
+                text-{size}
+              </h3>
+              <div className="flex flex-col gap-2">
+                {tokens.map((token) => (
+                  <TypographyTypeRow key={token.id} token={token} />
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       </section>
 
       <section>
-        <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">Pending</h2>
+        <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>Pending</h2>
         <Card>
-          <CardContent className="p-4 text-xs text-muted-foreground">
-            No pending typography styles. Add new text styles here for review before moving them into the
-            Typography library.
+          <CardContent className={cn(typeToken("text-xs/normal"), "p-4 text-muted-foreground")}>
+            Add new size/weight pairs here when Figma introduces them — keep tokens colorless.
           </CardContent>
         </Card>
       </section>

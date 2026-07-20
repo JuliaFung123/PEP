@@ -37,6 +37,7 @@ import {
 import { PepDesignSystemPage } from '@/components/pep-chrome'
 import { inputSurfaceClassName } from '@/lib/input-surface-classes'
 import { cn } from '@/lib/utils'
+import { typeToken } from "@/data/typography-tokens"
 
 const INITIAL_SAVED_FILTER_ROWS = [
   { id: '1', label: 'Activity table · Live' },
@@ -177,7 +178,7 @@ export function FilterPage() {
                     )}
                   </span>
                 </Button>
-                <SheetTitle className="min-w-0 flex-1 truncate text-xl font-medium leading-7 text-foreground">
+                <SheetTitle className={cn(typeToken("text-xl/medium"), "min-w-0 flex-1 truncate leading-7 text-foreground")}>
                   Filter
                 </SheetTitle>
                 <Button
@@ -210,7 +211,7 @@ export function FilterPage() {
                 >
                   <ScrollArea scrollbarLeft className="min-h-0 min-w-0 flex-1">
                     <div className="space-y-1 p-4">
-                    <p className="text-xs text-muted-foreground">First preset is the default</p>
+                    <p className={cn(typeToken("text-xs/normal"), "text-muted-foreground")}>First preset is the default</p>
                     {savedFilterRows.map((row) => {
                       const selected = row.id === selectedFilterId
                       return (
@@ -349,7 +350,7 @@ export function FilterPage() {
               <div className="flex min-h-0 min-w-0 flex-1 flex-col">
                 <div className="flex-1 space-y-4 overflow-hidden p-5">
                   <div className="space-y-2">
-                    <div className="text-sm font-semibold text-foreground">
+                    <div className={cn(typeToken("text-sm/semibold"), "text-foreground")}>
                       {'\u767c\u4f48\u6642\u9593'}
                     </div>
                     <div
@@ -371,7 +372,7 @@ export function FilterPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <div className="text-sm font-semibold text-foreground">
+                    <div className={cn(typeToken("text-sm/semibold"), "text-foreground")}>
                       {'\u8209\u884c\u6642\u9593'}
                     </div>
                     <Popover>
@@ -404,16 +405,16 @@ export function FilterPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <div className="text-sm font-semibold text-foreground">Num</div>
+                    <div className={cn(typeToken("text-sm/semibold"), "text-foreground")}>Num</div>
                     <div className="flex items-center gap-2">
                       <Input placeholder="Min" className="shadow-elevation-sm" />
-                      <span className="text-sm text-muted-foreground">-</span>
+                      <span className={cn(typeToken("text-sm/normal"), "text-muted-foreground")}>-</span>
                       <Input placeholder="Max" className="shadow-elevation-sm" />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <div className="text-sm font-semibold text-foreground">
+                    <div className={cn(typeToken("text-sm/semibold"), "text-foreground")}>
                       {'\u72c0\u614b'}
                     </div>
                     <div

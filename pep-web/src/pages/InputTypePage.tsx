@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { inputSurfaceClassName } from '@/lib/input-surface-classes'
+import { inputSurfaceClassName, inputSurfaceInvalidClassName } from '@/lib/input-surface-classes'
 import {
   FIELD_FRAMEWORK_DIFFERENCES,
   FIELD_INPUT_SECTIONS,
@@ -26,6 +26,7 @@ import {
   type FieldInputId,
   type FieldInputRow,
 } from '@/data/field-input-registry'
+import { LibraryFieldGroupItem } from '@/components/library-field'
 import { PepDesignSystemPage } from '@/components/pep-chrome'
 import {
   Field,
@@ -45,6 +46,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
+import { typeToken } from "@/data/typography-tokens"
 
 /** Field matrix frame — Value Types + FieldSet / FieldGroup (ignore readonly in Figma). */
 
@@ -87,8 +89,9 @@ const INPUT_NO_OPEN_FILL = 'aria-expanded:bg-transparent'
 const INPUT_OPEN_RING =
   'aria-expanded:border-ring aria-expanded:ring-3 aria-expanded:ring-ring/50 aria-expanded:shadow-none'
 
+/** Invalid chrome on a single surface owner — never paint a ring on a multi-input group wrapper. */
 const INPUT_INVALID_CHROME =
-  'rounded-lg ring-3 ring-destructive/20 [&_[data-slot=input]]:border-destructive [&_[data-slot=input]]:shadow-none [&_[data-slot=input]]:ring-3 [&_[data-slot=input]]:ring-destructive/20 [&_[data-slot=button]]:border-destructive [&_[data-slot=button]]:shadow-none [&_[data-slot=button]]:ring-3 [&_[data-slot=button]]:ring-destructive/20 [&>textarea]:border-destructive [&>textarea]:shadow-none [&>textarea]:ring-3 [&>textarea]:ring-destructive/20'
+  '[&_[data-slot=input]]:border-destructive [&_[data-slot=input]]:shadow-none [&_[data-slot=input]]:ring-3 [&_[data-slot=input]]:ring-destructive/20 [&_[data-slot=button]]:border-destructive [&_[data-slot=button]]:shadow-none [&_[data-slot=button]]:ring-3 [&_[data-slot=button]]:ring-destructive/20 [&>textarea]:border-destructive [&>textarea]:shadow-none [&>textarea]:ring-3 [&>textarea]:ring-destructive/20'
 
 // Back-compat aliases (keep changes localized; remove later if desired)
 const HOVER_ELEVATION_MD = `${INPUT_HOVER_ELEVATION_MD} ${INPUT_FOCUS_NO_ELEVATION}`
@@ -124,12 +127,14 @@ function PreviewDatePicker({
   disabled,
   filled,
   className,
+  invalid,
   /** When `filled`, use this date instead of `DEMO_DATE` (e.g. DatetimeRange start/end). */
   filledDate,
 }: {
   disabled: boolean
   filled: boolean
   className?: string
+  invalid?: boolean
   filledDate?: Date
 }) {
   const [date, setDate] = React.useState<Date | undefined>(undefined)
@@ -146,6 +151,7 @@ function PreviewDatePicker({
           type="button"
           variant="outline"
           disabled={disabled}
+          aria-invalid={invalid || undefined}
           className={cn(
             inputSurfaceClassName,
             'w-full max-w-full justify-between gap-2 text-left font-normal',
@@ -157,6 +163,7 @@ function PreviewDatePicker({
             INPUT_NO_OPEN_FILL,
             INPUT_NO_CLICK_EFFECT,
             INPUT_OPEN_RING,
+            invalid && !disabled && inputSurfaceInvalidClassName,
             className,
           )}
         >
@@ -181,7 +188,15 @@ function PreviewDatePicker({
 }
 
 /** shadcn-style date range — `Calendar` `mode="range"` + two months. */
-function PreviewDateRangePicker({ disabled, filled }: { disabled: boolean; filled: boolean }) {
+function PreviewDateRangePicker({
+  disabled,
+  filled,
+  invalid,
+}: {
+  disabled: boolean
+  filled: boolean
+  invalid?: boolean
+}) {
   const [range, setRange] = React.useState<DateRange | undefined>(undefined)
   const [open, setOpen] = React.useState(false)
 
@@ -200,6 +215,7 @@ function PreviewDateRangePicker({ disabled, filled }: { disabled: boolean; fille
           type="button"
           variant="outline"
           disabled={disabled}
+          aria-invalid={invalid || undefined}
           className={cn(
             inputSurfaceClassName,
             'w-full max-w-full justify-between gap-2 text-left font-normal',
@@ -211,6 +227,7 @@ function PreviewDateRangePicker({ disabled, filled }: { disabled: boolean; fille
             INPUT_NO_OPEN_FILL,
             INPUT_NO_CLICK_EFFECT,
             INPUT_OPEN_RING,
+            invalid && !disabled && inputSurfaceInvalidClassName,
           )}
         >
           <span className="min-w-0 truncate">{formatDateRangeLabel(range)}</span>
@@ -235,12 +252,14 @@ function PreviewTimePicker({
   disabled,
   filled,
   className,
+  invalid,
   /** When `filled`, use this time instead of `14:30` (e.g. DatetimeRange start/end). */
   filledTime,
 }: {
   disabled: boolean
   filled: boolean
   className?: string
+  invalid?: boolean
   filledTime?: string
 }) {
   const [time, setTime] = React.useState('')
@@ -259,6 +278,7 @@ function PreviewTimePicker({
         value={time}
         onChange={(e) => setTime(e.target.value)}
         disabled={disabled}
+        aria-invalid={invalid || undefined}
         className={cn(
           'max-w-full tabular-nums pr-9',
           // Hide the browser picker icon so the lucide icon is the only one shown.
@@ -266,6 +286,7 @@ function PreviewTimePicker({
           INPUT_HOVER_ELEVATION_MD,
           INPUT_FOCUS_NO_ELEVATION,
           INPUT_FOCUS_RING,
+          invalid && !disabled && inputSurfaceInvalidClassName,
         )}
       />
       <button
@@ -365,7 +386,7 @@ function PreviewSelectMenu({
             >
               <span>{fruit}</span>
               {value === fruit ? (
-                <span className="text-xs font-medium text-muted-foreground">Selected</span>
+                <span className={cn(typeToken("text-xs/medium"), "text-muted-foreground")}>Selected</span>
               ) : null}
             </button>
           ))}
@@ -386,12 +407,12 @@ function AvatarOptionRow({
 }) {
   return (
     <span className="flex min-w-0 items-center gap-2">
-      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground">
+      <span className={cn(typeToken("text-10/normal"), "flex size-6 shrink-0 items-center justify-center rounded-full bg-muted font-semibold text-muted-foreground")}>
         {initials}
       </span>
       <span className="min-w-0 truncate">{label}</span>
       {selected ? (
-        <span className="ml-auto text-xs font-medium text-muted-foreground">Selected</span>
+        <span className={cn(typeToken("text-xs/medium"), "ml-auto text-muted-foreground")}>Selected</span>
       ) : null}
     </span>
   )
@@ -430,7 +451,7 @@ function PreviewSelectAvatar({
           )}
         >
           <span className="flex min-w-0 items-center gap-2">
-            <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground">
+            <span className={cn(typeToken("text-10/normal"), "flex size-6 shrink-0 items-center justify-center rounded-full bg-muted font-semibold text-muted-foreground")}>
               {value ? value.initials : '—'}
             </span>
             <span className="min-w-0 truncate">
@@ -674,7 +695,8 @@ function PreviewAvatarGroup({
           className={cn(
             inputSurfaceClassName,
             'flex h-9 max-w-full items-center justify-between gap-2 py-0 pr-2 pl-1',
-            'text-base font-normal md:text-sm',
+            typeToken("text-base/normal"),
+            "md:text-sm",
             HOVER_ELEVATION_MD,
             HOVER_BG_TRANSPARENT,
             FOCUS_RING,
@@ -687,7 +709,7 @@ function PreviewAvatarGroup({
               {selectedPeople.slice(0, 3).map((p) => (
                 <span
                   key={p.id}
-                  className="flex size-7 items-center justify-center rounded-full border-2 border-background bg-muted text-[10px] font-medium text-muted-foreground"
+                  className={cn(typeToken("text-10/normal"), "flex size-7 items-center justify-center rounded-full border-2 border-background bg-muted font-medium text-muted-foreground")}
                 >
                   {p.initials}
                 </span>
@@ -828,6 +850,10 @@ function PreviewTextField({
   )
 }
 
+function previewFieldGroupError(fieldLabel: string, invalid?: boolean) {
+  return invalid ? `Error text for ${fieldLabel}` : undefined
+}
+
 function ValueTypeSurface({
   id,
   interaction,
@@ -843,8 +869,28 @@ function ValueTypeSurface({
   const textVal = filled ? SAMPLE_TEXT : ''
   const areaVal = filled ? SAMPLE_TEXTAREA : ''
 
-  const shell = (node: React.ReactNode) => (
-    <div className={cn('w-full max-w-full', wrapClassName, invalid && INPUT_INVALID_CHROME)}>
+  const fieldGroupItem = (
+    fieldLabel: string,
+    className: string,
+    control: React.ReactNode,
+  ) => (
+    <LibraryFieldGroupItem
+      className={className}
+      invalid={invalid}
+      error={previewFieldGroupError(fieldLabel, invalid)}
+    >
+      {control}
+    </LibraryFieldGroupItem>
+  )
+
+  const shell = (node: React.ReactNode, options?: { skipInvalidChrome?: boolean }) => (
+    <div
+      className={cn(
+        'w-full max-w-full',
+        wrapClassName,
+        invalid && !options?.skipInvalidChrome && INPUT_INVALID_CHROME,
+      )}
+    >
       {node}
     </div>
   )
@@ -865,7 +911,7 @@ function ValueTypeSurface({
             disabled && 'pointer-events-none bg-input/50 opacity-50 shadow-none dark:bg-input/80',
           )}
         >
-          <span className="shrink-0 select-none text-sm font-bold tabular-nums text-muted-foreground">
+          <span className={cn(typeToken("text-sm/bold"), "shrink-0 select-none tabular-nums text-muted-foreground")}>
             EN
           </span>
           <Input
@@ -891,7 +937,7 @@ function ValueTypeSurface({
             disabled && 'pointer-events-none bg-input/50 opacity-50 shadow-none dark:bg-input/80',
           )}
         >
-          <span className="shrink-0 select-none text-sm font-bold tabular-nums text-muted-foreground">
+          <span className={cn(typeToken("text-sm/bold"), "shrink-0 select-none tabular-nums text-muted-foreground")}>
             EN
           </span>
           <textarea
@@ -900,7 +946,7 @@ function ValueTypeSurface({
             readOnly
             disabled={disabled}
             rows={3}
-            className="min-h-20 w-0 min-w-0 flex-1 resize-y border-0 bg-transparent p-0 text-sm leading-normal shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0"
+            className={cn(typeToken("text-sm/normal"), "min-h-20 w-0 min-w-0 flex-1 resize-y border-0 bg-transparent p-0 leading-normal shadow-none outline-none placeholder:text-muted-foreground focus-visible:ring-0")}
           />
         </div>,
       )
@@ -929,13 +975,18 @@ function ValueTypeSurface({
     case 'date-time':
       return shell(
         <div className="flex w-full max-w-full flex-wrap items-start gap-1">
-          <div className="min-w-[160px] max-w-[160px]">
-            <PreviewDatePicker disabled={disabled} filled={filled} />
-          </div>
-          <div className="min-w-[120px] max-w-[120px]">
-            <PreviewTimePicker disabled={disabled} filled={filled} />
-          </div>
+          {fieldGroupItem(
+            'Date',
+            'min-w-[160px] max-w-[160px]',
+            <PreviewDatePicker disabled={disabled} filled={filled} invalid={invalid} />,
+          )}
+          {fieldGroupItem(
+            'Time',
+            'min-w-[120px] max-w-[120px]',
+            <PreviewTimePicker disabled={disabled} filled={filled} invalid={invalid} />,
+          )}
         </div>,
+        { skipInvalidChrome: true },
       )
     case 'select':
       return shell(<PreviewSelectMenu disabled={disabled} filled={filled} />)
@@ -950,7 +1001,7 @@ function ValueTypeSurface({
     case 'currency':
       return shell(
         <div className="relative max-w-full">
-          <span className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-sm text-muted-foreground">
+          <span className={cn(typeToken("text-sm/normal"), "pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-muted-foreground")}>
             $
           </span>
           <Input
@@ -1046,7 +1097,8 @@ function ValueTypeSurface({
         <div
           className={cn(
             inputSurfaceClassName,
-            'flex size-20 max-w-full items-center justify-center text-[10px] text-muted-foreground',
+            "flex size-20 max-w-full items-center justify-center text-muted-foreground",
+            typeToken("text-10/normal"),
             HOVER_ELEVATION_MD,
             FOCUS_RING,
           )}
@@ -1056,79 +1108,107 @@ function ValueTypeSurface({
       )
     case 'date-range':
       return shell(
-        <div className="flex max-w-full flex-wrap items-center gap-1">
-          <Input
-            type="text"
-            className="min-h-9 min-w-0 flex-1"
-            placeholder={filled ? undefined : 'Start'}
-            value={filled ? 'Apr 1, 2026' : ''}
-            readOnly
-            disabled={disabled}
-          />
+        <div className="flex max-w-full flex-wrap items-start gap-1">
+          {fieldGroupItem(
+            'Start',
+            'min-w-0 flex-1',
+            <Input
+              type="text"
+              className={cn(
+                'min-h-9 w-full',
+                invalid && !disabled && inputSurfaceInvalidClassName,
+              )}
+              placeholder={filled ? undefined : 'Start'}
+              value={filled ? 'Apr 1, 2026' : ''}
+              readOnly
+              disabled={disabled}
+              aria-invalid={invalid || undefined}
+            />,
+          )}
           <span
-            className="flex h-9 shrink-0 items-center px-0.5 text-sm leading-none text-muted-foreground"
+            className={cn(typeToken("text-sm/normal"), "flex h-9 shrink-0 items-center self-start px-0.5 leading-none text-muted-foreground")}
             aria-hidden
           >
             ~
           </span>
-          <Input
-            type="text"
-            className="min-h-9 min-w-0 flex-1"
-            placeholder={filled ? undefined : 'End'}
-            value={filled ? 'Apr 30, 2026' : ''}
-            readOnly
-            disabled={disabled}
-          />
+          {fieldGroupItem(
+            'End',
+            'min-w-0 flex-1',
+            <Input
+              type="text"
+              className={cn(
+                'min-h-9 w-full',
+                invalid && !disabled && inputSurfaceInvalidClassName,
+              )}
+              placeholder={filled ? undefined : 'End'}
+              value={filled ? 'Apr 30, 2026' : ''}
+              readOnly
+              disabled={disabled}
+              aria-invalid={invalid || undefined}
+            />,
+          )}
         </div>,
+        { skipInvalidChrome: true },
       )
     case 'datetime-range':
       /* Figma 5329:9597 — one row: date, time, ~, date, time; container 600×36, gap 4px, fields fill. */
       return shell(
-        <div className="flex w-full max-w-[600px] flex-wrap items-center gap-1">
-          <div className="min-h-9 min-w-[160px] max-w-[160px]">
+        <div className="flex w-full max-w-[600px] flex-wrap items-start gap-1">
+          {fieldGroupItem(
+            'Start date',
+            'min-w-[160px] max-w-[160px]',
             <PreviewDatePicker
               disabled={disabled}
               filled={filled}
+              invalid={invalid}
               filledDate={DEMO_DATETIME_RANGE_START_DATE}
-            />
-          </div>
-          <div className="min-h-9 min-w-[120px] max-w-[120px]">
-            <PreviewTimePicker disabled={disabled} filled={filled} filledTime="09:00" />
-          </div>
+            />,
+          )}
+          {fieldGroupItem(
+            'Start time',
+            'min-w-[120px] max-w-[120px]',
+            <PreviewTimePicker disabled={disabled} filled={filled} invalid={invalid} filledTime="09:00" />,
+          )}
           <span
-            className="flex h-9 shrink-0 items-center px-0.5 text-sm leading-none text-muted-foreground"
+            className={cn(typeToken("text-sm/normal"), "flex h-9 shrink-0 items-center self-start px-0.5 leading-none text-muted-foreground")}
             aria-hidden
           >
             ~
           </span>
-          <div className="min-h-9 min-w-[160px] max-w-[160px]">
+          {fieldGroupItem(
+            'End date',
+            'min-w-[160px] max-w-[160px]',
             <PreviewDatePicker
               disabled={disabled}
               filled={filled}
+              invalid={invalid}
               filledDate={DEMO_DATETIME_RANGE_END_DATE}
-            />
-          </div>
-          <div className="min-h-9 min-w-[120px] max-w-[120px]">
-            <PreviewTimePicker disabled={disabled} filled={filled} filledTime="17:00" />
-          </div>
+            />,
+          )}
+          {fieldGroupItem(
+            'End time',
+            'min-w-[120px] max-w-[120px]',
+            <PreviewTimePicker disabled={disabled} filled={filled} invalid={invalid} filledTime="17:00" />,
+          )}
         </div>,
+        { skipInvalidChrome: true },
       )
   }
 }
 
 function FieldFrameworkNotesTable() {
   return (
-    <Table className="text-xs">
-      <TableCaption className="caption-top mt-0 mb-2 text-left text-xs text-muted-foreground">
+    <Table className={typeToken("text-xs/normal")}>
+      <TableCaption className={cn(typeToken("text-xs/normal"), "caption-top mt-0 mb-2 text-left text-muted-foreground")}>
         Designer overrides vs stock shadcn. These rules describe the approved
         inputs in the library below.
       </TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead className="h-8 w-20 px-2 py-1.5 text-xs">Property</TableHead>
-          <TableHead className="h-8 px-2 py-1.5 text-xs">shadcn</TableHead>
-          <TableHead className="h-8 px-2 py-1.5 text-xs">PEP</TableHead>
-          <TableHead className="h-8 px-2 py-1.5 text-xs">Note</TableHead>
+          <TableHead className={cn(typeToken("text-xs/normal"), "h-8 w-20 px-2 py-1.5")}>Property</TableHead>
+          <TableHead className={cn(typeToken("text-xs/normal"), "h-8 px-2 py-1.5")}>shadcn</TableHead>
+          <TableHead className={cn(typeToken("text-xs/normal"), "h-8 px-2 py-1.5")}>PEP</TableHead>
+          <TableHead className={cn(typeToken("text-xs/normal"), "h-8 px-2 py-1.5")}>Note</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody className="text-muted-foreground">
@@ -1161,7 +1241,7 @@ function InfoHint({ content }: { content: string }) {
       </button>
       <span
         role="tooltip"
-        className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-52 -translate-x-1/2 rounded-md bg-popover px-3 py-2 text-xs font-normal leading-snug text-popover-foreground shadow-elevation-md ring-1 ring-border group-hover/info:block group-focus-within/info:block"
+        className={cn(typeToken("text-xs/normal"), "pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-52 -translate-x-1/2 rounded-md bg-popover px-3 py-2 leading-snug text-popover-foreground shadow-elevation-md ring-1 ring-border group-hover/info:block group-focus-within/info:block")}
       >
         {content}
       </span>
@@ -1191,12 +1271,12 @@ function PepFieldCopy({
         <RequiredMark />
         <InfoHint content={`Info: API-provided help text for ${label}.`} />
       </FieldLabel>
-      <FieldDescription className="text-xs leading-4">
+      <FieldDescription className={cn(typeToken("text-xs/normal"), "leading-4")}>
         {descriptionTop}
       </FieldDescription>
       {children}
-      {hasError ? <FieldError className="px-2.5 text-xs">{errorText}</FieldError> : null}
-      <FieldDescription className="text-xs leading-4">
+      {hasError ? <FieldError className={cn(typeToken("text-xs/normal"), "px-2.5")}>{errorText}</FieldError> : null}
+      <FieldDescription className={cn(typeToken("text-xs/normal"), "leading-4")}>
         {descriptionBottom}
       </FieldDescription>
     </Field>
@@ -1207,14 +1287,12 @@ function PepFieldGroupCopy({
   label,
   descriptionTop,
   descriptionBottom,
-  errorText,
   hasError,
   children,
 }: {
   label: string
   descriptionTop: string
   descriptionBottom: string
-  errorText: string
   hasError: boolean
   children: React.ReactNode
 }) {
@@ -1228,12 +1306,11 @@ function PepFieldGroupCopy({
         <RequiredMark />
         <InfoHint content={`Info: API-provided help text for ${label}.`} />
       </FieldLegend>
-      <FieldDescription className="text-xs leading-4">
+      <FieldDescription className={cn(typeToken("text-xs/normal"), "leading-4")}>
         {descriptionTop}
       </FieldDescription>
       {children}
-      {hasError ? <FieldError className="px-2.5 text-xs">{errorText}</FieldError> : null}
-      <FieldDescription className="text-xs leading-4">
+      <FieldDescription className={cn(typeToken("text-xs/normal"), "leading-4")}>
         {descriptionBottom}
       </FieldDescription>
     </FieldSet>
@@ -1266,7 +1343,6 @@ function PepInputAnatomyPreview({
         label={row.figmaName}
         descriptionTop={descriptionTop}
         descriptionBottom={descriptionBottom}
-        errorText={errorText}
         hasError={hasError}
       >
         {body}
@@ -1296,11 +1372,11 @@ function InputPreviewMatrix({
 }) {
   return (
     <>
-      <p className="mb-2 hidden px-4 text-sm font-medium text-foreground sm:block">Value type</p>
+      <p className={cn(typeToken("text-sm/medium"), "mb-2 hidden px-4 text-foreground sm:block")}>Value type</p>
       <div className="mb-3 hidden px-4 sm:grid sm:grid-cols-[minmax(9rem,12rem)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] sm:items-start sm:gap-x-6">
-        <div className="min-w-0 text-xs font-medium text-muted-foreground">Input</div>
+        <div className={cn(typeToken("text-xs/medium"), "min-w-0 text-muted-foreground")}>Input</div>
         {INTERACTION_OPTIONS.map((opt) => (
-          <div key={opt.key} className="min-w-0 text-xs font-medium text-muted-foreground">
+          <div key={opt.key} className={cn(typeToken("text-xs/medium"), "min-w-0 text-muted-foreground")}>
             {opt.label}
           </div>
         ))}
@@ -1314,7 +1390,7 @@ function InputPreviewMatrix({
             <React.Fragment key={section}>
               <div className="bg-muted px-4 py-3">
                 <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                  <h3 className="text-sm font-semibold tracking-tight text-foreground">{title}</h3>
+                  <h3 className={cn(typeToken("text-sm/semibold"), "tracking-tight text-foreground")}>{title}</h3>
                   <pre className="whitespace-pre font-mono text-[11px] leading-4 text-muted-foreground">
                     {section === 'field'
                       ? `Field
@@ -1329,9 +1405,8 @@ function InputPreviewMatrix({
 ├─ Required
 ├─ Hints
 ├─ FieldGroup
-│  ├─ Field
-│  └─ Field
-├─ Error
+│  ├─ Field (input + error)
+│  └─ Field (input + error)
 └─ Bottom description`}
                   </pre>
                 </div>
@@ -1341,7 +1416,7 @@ function InputPreviewMatrix({
                     key={row.id}
                     className="flex flex-col gap-4 border-0 px-4 py-5 sm:grid sm:grid-cols-[minmax(9rem,12rem)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] sm:items-start sm:gap-x-6"
                   >
-                    <div className="min-w-0 space-y-1 text-sm sm:pt-0.5">
+                    <div className={cn(typeToken("text-sm/normal"), "min-w-0 space-y-1 sm:pt-0.5")}>
                       <div className="flex min-w-0 items-baseline gap-2">
                         <span className="shrink-0 font-medium tabular-nums text-muted-foreground">
                           {sectionIndex + 1}.
@@ -1358,7 +1433,7 @@ function InputPreviewMatrix({
                     </div>
                     {INTERACTION_OPTIONS.map((opt) => (
                       <div key={opt.key} className="flex min-w-0 flex-col gap-2">
-                        <p className="text-xs font-medium text-muted-foreground sm:hidden">
+                        <p className={cn(typeToken("text-xs/medium"), "text-muted-foreground sm:hidden")}>
                           {opt.label}
                         </p>
                         <PepInputAnatomyPreview row={row} interaction={opt.key} />
@@ -1379,7 +1454,7 @@ export function InputTypePage() {
     <PepDesignSystemPage title="Field" contentClassName="space-y-10 pt-4">
         {/* Notes */}
         <section className="max-w-4xl">
-          <h2 className="mb-0 text-sm font-semibold tracking-tight text-foreground">
+          <h2 className={cn(typeToken("text-sm/semibold"), "mb-0 tracking-tight text-foreground")}>
             Notes
           </h2>
           <FieldFrameworkNotesTable />
@@ -1387,10 +1462,10 @@ export function InputTypePage() {
 
         {/* Input library */}
         <section>
-          <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">
+          <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>
             Input library
           </h2>
-          <p className="mb-4 text-xs text-muted-foreground">
+          <p className={cn(typeToken("text-xs/normal"), "mb-4 text-muted-foreground")}>
             Approved field inputs ({FIELD_LIBRARY_ROWS.length} value types).{' '}
             <span className="font-medium text-foreground">
               Always pick an input from this section when creating layouts.
@@ -1402,10 +1477,10 @@ export function InputTypePage() {
 
         {/* New inputs (pending review) */}
         <section>
-          <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">
+          <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>
             New inputs (pending review)
           </h2>
-          <p className="mb-4 text-xs text-muted-foreground">
+          <p className={cn(typeToken("text-xs/normal"), "mb-4 text-muted-foreground")}>
             Prototype value types ({FIELD_PENDING_ROWS.length}) not yet in the input library. Create a
             new style only when no similar input exists in the library. Refer here for review before use in
             shipped layouts. When promoting a row, move it in{' '}

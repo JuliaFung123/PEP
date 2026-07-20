@@ -56,7 +56,7 @@ export function EditFilterGroupDialog({
             <Button
               type="button"
               variant="ghost"
-              size="icon-sm"
+              size="icon-xs"
               className="size-7 shrink-0 rounded-md"
               aria-label="Close"
             >

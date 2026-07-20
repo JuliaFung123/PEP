@@ -33,9 +33,10 @@ The **Field** page is the **input library** for PEP. Layouts must pick inputs fr
 |------|------|
 | Registry (§1 notes + §2/§3 tiers) | `pep-web/src/data/field-input-registry.ts` |
 | Page | `pep-web/src/pages/InputTypePage.tsx` |
+| Labeled field shell | `pep-web/src/components/library-field.tsx` (`LibraryField`, `LibraryFieldSet`) |
 | Layout rule | `.cursor/rules/field-input-library.mdc` |
 | Router / shell | `pep-web/src/App.tsx` (`/preview/input-type`) |
-| Shared field chrome | `pep-web/src/lib/input-surface-classes.ts` |
+| Shared field chrome | `pep-web/src/lib/input-surface-classes.ts` (`inputSurfaceClassName`, `inputInnerControlClassName`, invalid helpers) |
 
 ## Implementation rules
 
@@ -46,7 +47,7 @@ The **Field** page is the **input library** for PEP. Layouts must pick inputs fr
 
 ## Anti-patterns
 
-- Inventing one-off field chrome in layout pages instead of matching a §2 row.
+- Inventing one-off field chrome / `gap-*` overrides in layout pages instead of `LibraryField` + a §2 row.
 - Using §3 pending inputs in shipped layouts without promotion.
 - New files like `components/input-select.tsx` — keep compositions in `InputTypePage.tsx` until promoted.
 

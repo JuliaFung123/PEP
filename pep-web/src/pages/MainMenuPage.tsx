@@ -1,4 +1,4 @@
-﻿import {
+import {
   CalendarDays,
   Frame,
   Home,
@@ -21,6 +21,7 @@ import { PepDesignSystemPage } from "@/components/pep-chrome"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
+import { typeToken } from "@/data/typography-tokens"
 
 const MAIN_MENU_LIST_TYPES = [
   "Team switcher",
@@ -68,7 +69,7 @@ function MainMenuListStylePreview({
   }
 
   if (isCollapsed && type !== "NavItem" && type !== "NavItem expandable") {
-    return <span className="text-xs text-muted-foreground/60">â€”</span>
+    return <span className={cn(typeToken("text-xs/normal"), "text-muted-foreground/60")}>â€”</span>
   }
 
   if (type === "NavGroup label") {
@@ -137,7 +138,7 @@ function MainMenuListStylePreview({
 
 function MainMenuListStyleList() {
   return (
-    <div className="divide-y divide-border text-xs">
+    <div className={cn(typeToken("text-xs/normal"), "divide-y divide-border")}>
       <div className="grid grid-cols-3 gap-4 px-4 py-3 text-muted-foreground">
         {MAIN_MENU_LIST_STATUSES.map((status) => (
           <div key={status} className={cn("font-medium", MAIN_MENU_LIBRARY_PREVIEW_WIDTH)}>
@@ -189,7 +190,7 @@ function DemoMainMenu() {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <Button type="button" variant="outline" size="sm" onClick={toggleMenuCollapsed}>
+        <Button type="button" variant="outline" size="xs" onClick={toggleMenuCollapsed}>
           {isMenuCollapsed ? (
             <>
               <PanelLeftOpen className="size-4" aria-hidden />
@@ -303,11 +304,18 @@ function DemoMainMenu() {
 
 export function MainMenuPage() {
   return (
-    <PepDesignSystemPage title="Sidebar" contentClassName="flex flex-col gap-10">
+    <PepDesignSystemPage title="Sidebar items" contentClassName="flex flex-col gap-10">
         <section>
-          <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">Notes</h2>
-          <p className="text-xs text-muted-foreground">
-            Reference:{" "}
+          <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>Notes</h2>
+          <p className={cn(typeToken("text-xs/normal"), "text-muted-foreground")}>
+            Atomic sidebar rows. Full rail composition: Block →{" "}
+            <a
+              href="/preview/sidebar"
+              className="text-foreground underline underline-offset-2 hover:text-foreground/80"
+            >
+              Sidebar
+            </a>
+            . Reference:{" "}
             <a
               href="https://ui.shadcn.com/blocks/sidebar#sidebar-07"
               target="_blank"
@@ -316,13 +324,13 @@ export function MainMenuPage() {
             >
               shadcn sidebar-07
             </a>
-            . Item library matches this block — copy from the ref.
+            .
           </p>
         </section>
 
         <section>
-          <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">Sidebar Item Library</h2>
-          <p className="mb-4 text-xs text-muted-foreground">
+          <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>Sidebar item library</h2>
+          <p className={cn(typeToken("text-xs/normal"), "mb-4 text-muted-foreground")}>
             All main menu item variants shown here are finalized as the approved library. When drawing
             pages with a left menu, pick from this table before creating a new menu item style.
           </p>
@@ -332,17 +340,17 @@ export function MainMenuPage() {
         </section>
 
         <section>
-          <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">Demo menu</h2>
-          <p className="mb-4 text-xs text-muted-foreground">
+          <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>Demo menu</h2>
+          <p className={cn(typeToken("text-xs/normal"), "mb-4 text-muted-foreground")}>
             Example using the approved item variants in one menu structure.
           </p>
           <DemoMainMenu />
         </section>
 
         <section>
-          <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">Pending</h2>
+          <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>Pending</h2>
           <Card>
-            <CardContent className="p-4 text-xs text-muted-foreground">
+            <CardContent className={cn(typeToken("text-xs/normal"), "p-4 text-muted-foreground")}>
               No pending main menu variants. Add alternate menu item styles here before promoting them
               into the item variants library.
             </CardContent>

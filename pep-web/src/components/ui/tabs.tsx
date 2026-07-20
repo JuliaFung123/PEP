@@ -2,6 +2,7 @@ import * as React from "react"
 import * as TabsPrimitive from "@radix-ui/react-tabs"
 import { cva, type VariantProps } from "class-variance-authority"
 
+import { typeToken } from "@/data/typography-tokens"
 import { cn } from "@/lib/utils"
 
 function Tabs({ ...props }: React.ComponentProps<typeof TabsPrimitive.Root>) {
@@ -48,7 +49,8 @@ const TabsTrigger = React.forwardRef<
     ref={ref}
     data-slot="tabs-trigger"
     className={cn(
-      "inline-flex items-center justify-center gap-2 px-3 text-sm font-medium whitespace-nowrap transition-all outline-none",
+      "inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap transition-all outline-none",
+      typeToken("text-sm/medium"),
       "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
       "disabled:pointer-events-none disabled:opacity-50",
       // default (pill) — Figma Selected on/off style=default
@@ -83,7 +85,8 @@ const TabsContent = React.forwardRef<
     ref={ref}
     data-slot="tabs-content"
     className={cn(
-      "mt-3 rounded-lg border border-border bg-card p-3 text-sm text-card-foreground shadow-elevation-xs outline-none",
+      "mt-3 rounded-lg border border-border bg-card p-3 text-card-foreground shadow-elevation-xs outline-none",
+      typeToken("text-sm/normal"),
       "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
       className,
     )}

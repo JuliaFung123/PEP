@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
+import { typeToken } from "@/data/typography-tokens"
 
 type SaveFilterGroupMode = 'existing' | 'new'
 
@@ -38,7 +39,7 @@ function RadioRow({
       >
         {checked ? <span className="size-2.5 rounded-full bg-primary" /> : null}
       </span>
-      <span className="text-sm font-medium text-foreground">{label}</span>
+      <span className={cn(typeToken("text-sm/medium"), "text-foreground")}>{label}</span>
     </button>
   )
 }
@@ -81,7 +82,7 @@ export function SaveFilterGroupDialog({
             <Button
               type="button"
               variant="ghost"
-              size="icon-sm"
+              size="icon-xs"
               className="size-7 shrink-0 rounded-md"
               aria-label="Close"
             >
@@ -91,7 +92,7 @@ export function SaveFilterGroupDialog({
         </div>
 
         <div className="flex flex-col gap-6 p-6 pt-0">
-          <p className="text-base font-normal leading-6 text-foreground">Do you want to XXXXXXXX?</p>
+          <p className={cn(typeToken("text-base/normal"), "font-normal leading-6 text-foreground")}>Do you want to XXXXXXXX?</p>
 
           <div className="flex flex-col gap-1">
             <RadioRow

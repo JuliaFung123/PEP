@@ -4,28 +4,21 @@ import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area"
 import { cn } from "@/lib/utils"
 
 type ScrollAreaProps = React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root> & {
-  /** Place the vertical scrollbar on the start edge (left in LTR). Uses Radix `dir` internally; content stays LTR unless you nest your own `dir`. */
+  /** Place the vertical scrollbar on the start edge (left in LTR) via absolute positioning. */
   scrollbarLeft?: boolean
 }
 
 const ScrollArea = React.forwardRef<
   React.ElementRef<typeof ScrollAreaPrimitive.Root>,
   ScrollAreaProps
->(({ className, children, scrollbarLeft, dir, ...props }, ref) => (
+>(({ className, children, scrollbarLeft, ...props }, ref) => (
   <ScrollAreaPrimitive.Root
     ref={ref}
     className={cn("relative overflow-hidden", className)}
-    dir={scrollbarLeft ? "rtl" : dir}
     {...props}
   >
     <ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit] [&>div]:!block">
-      {scrollbarLeft ? (
-        <div dir="ltr" className="min-w-0">
-          {children}
-        </div>
-      ) : (
-        children
-      )}
+      {children}
     </ScrollAreaPrimitive.Viewport>
     <ScrollBar scrollbarLeft={scrollbarLeft} />
     <ScrollAreaPrimitive.Corner />
@@ -52,7 +45,7 @@ const ScrollBar = React.forwardRef<
         cn(
           "h-full w-2 justify-center bg-transparent p-px",
           scrollbarLeft
-            ? "border-r border-r-transparent"
+            ? "!absolute top-0 left-0 border-r border-r-transparent"
             : "border-l border-l-transparent",
         ),
       orientation === "horizontal" &&

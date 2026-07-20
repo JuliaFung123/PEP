@@ -14,6 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
+import { typeToken } from "@/data/typography-tokens"
 
 const SAMPLE_SRC = "/assets/figma/image-file/sample.png"
 const PATH = "Folder/FolderName/FolderName/FolderName/"
@@ -121,8 +122,8 @@ export function HoverActionPage() {
   return (
     <PepDesignSystemPage title="Hover action" contentClassName="space-y-10">
       <section>
-        <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">Notes</h2>
-        <p className="mb-3 text-xs text-muted-foreground">
+        <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>Notes</h2>
+        <p className={cn(typeToken("text-xs/normal"), "mb-3 text-muted-foreground")}>
           No shadcn equivalent — PEP Figma{" "}
           <a
             href="https://www.figma.com/design/bRDWHAITfr5p6onqnKTf0q/--PEP-Web_Library?node-id=5298-9418"
@@ -139,8 +140,8 @@ export function HoverActionPage() {
       </section>
 
       <section>
-        <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">Library</h2>
-        <p className="mb-4 text-xs text-muted-foreground">
+        <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>Library</h2>
+        <p className={cn(typeToken("text-xs/normal"), "mb-4 text-muted-foreground")}>
           <span className="font-medium text-foreground">Always on</span> shows the action chrome.{" "}
           <span className="font-medium text-foreground">Preview</span> attaches it to a related
           host — hover to reveal.
@@ -148,7 +149,7 @@ export function HoverActionPage() {
 
         <div className="rounded-xl border border-border/60 bg-muted px-4 py-5">
           <Table>
-            <TableCaption className="caption-top mb-3 text-left text-xs font-medium text-muted-foreground">
+            <TableCaption className={cn(typeToken("text-xs/medium"), "caption-top mb-3 text-left text-muted-foreground")}>
               Style × always on × preview host
             </TableCaption>
             <TableHeader>
@@ -162,7 +163,7 @@ export function HoverActionPage() {
               {ROWS.map(({ style, label, hostLabel }) => (
                 <TableRow key={style}>
                   <TableCell className="align-middle">
-                    <div className="text-xs font-medium text-foreground">{label}</div>
+                    <div className={cn(typeToken("text-xs/medium"), "text-foreground")}>{label}</div>
                     <div className="mt-0.5 text-[11px] text-muted-foreground">{hostLabel}</div>
                   </TableCell>
                   <TableCell className="align-middle">

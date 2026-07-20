@@ -1,0 +1,39 @@
+---
+description: Form Menu block library — Notes, Library (approved), Pending (review). Use when building multi-section form sidebars (Figma Form_menu).
+globs: "pep-web/src/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Form Menu library (PEP Web)
+
+The **Form Menu** preview page (`/preview/form-menu`, sidebar: **Block → Form Menu**) is the source of truth for multi-section form nav. Match [Figma Form_menu](https://www.figma.com/design/IZ6algHkFp6Z2a5dYiS1hC/PEP?node-id=477-19895).
+
+## Page structure (`FormMenuBlockPage.tsx`)
+
+| Section | Purpose | Registry |
+|--------|---------|----------|
+| **Notes** | Form_menu rules (states, active, required *) | Page copy |
+| **Library** | Approved list-item variants | `FORM_MENU_STYLE_ROWS` where `tier: 'library'` |
+| **Preview** | Composed form-nav example only — not a Library pick | Page-only demo |
+| **Pending** | New styles under review | `tier: 'pending'` |
+
+## Layout rules
+
+1. Before coding a form section sidebar, check Library.
+2. Compose with `FormMenu` + `FormMenuItem` from `@/components/form-menu`.
+3. States: `complete` | `incomplete` | `nested`; set `active` on the current section.
+4. If no Library match: add Pending row + preview, then use in layout.
+5. Promote Pending → Library only when the user asks.
+
+## Files
+
+| File | Role |
+|------|------|
+| `pep-web/src/components/form-menu.tsx` | `FormMenu`, `FormMenuItem` |
+| `pep-web/src/data/form-menu-registry.ts` | Library / Pending tiers |
+| `pep-web/src/pages/FormMenuBlockPage.tsx` | Block page UI |
+
+## Anti-patterns
+
+- Rebuilding Form_menu markup only inside a demo page without a registry entry.
+- Using Dropdown Menu for this vertical form section nav.

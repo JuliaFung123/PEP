@@ -4,7 +4,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -18,6 +17,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { typeToken } from "@/data/typography-tokens"
+import { cn } from "@/lib/utils"
 
 const ITEM_SPACING = [
   {
@@ -53,7 +54,7 @@ function SpacingDemo({
   return (
     <div className="min-w-0 flex-1 space-y-2">
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-        <span className="text-xs font-medium text-foreground">{name}</span>
+        <span className={cn(typeToken("text-xs/medium"), "text-foreground")}>{name}</span>
         <code className="rounded bg-muted px-1 py-0.5 text-[11px] text-muted-foreground">
           {gapClass}
         </code>
@@ -81,8 +82,8 @@ export function RadioCheckboxPage() {
   return (
     <PepDesignSystemPage title="Radio / Checkbox" contentClassName="space-y-10">
       <section>
-        <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">Library</h2>
-        <p className="mb-3 text-xs text-muted-foreground">
+        <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>Library</h2>
+        <p className={cn(typeToken("text-xs/normal"), "mb-3 text-muted-foreground")}>
           References:{" "}
           <a
             href="https://ui.shadcn.com/docs/components/checkbox"
@@ -103,77 +104,66 @@ export function RadioCheckboxPage() {
           </a>
         </p>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Radio / Checkbox</CardTitle>
-            <CardDescription className="!text-muted-foreground">
-              Default shadcn compositions — both use size-4 controls with primary checked state.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-8">
-            <div className="space-y-3">
-              <div className="text-xs font-medium text-muted-foreground">Checkbox</div>
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2">
-                  <Checkbox id="terms" defaultChecked />
-                  <Label htmlFor="terms">Accept terms and conditions</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox id="marketing" />
-                  <Label htmlFor="marketing">Send me product updates</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox id="disabled" disabled />
-                  <Label htmlFor="disabled">Disabled</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox id="disabled-checked" defaultChecked disabled />
-                  <Label htmlFor="disabled-checked">Selected + disabled</Label>
-                </div>
+        <div className="flex flex-col gap-8">
+          <div className="space-y-3">
+            <div className={cn(typeToken("text-xs/medium"), "text-muted-foreground")}>Checkbox</div>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <Checkbox id="terms" defaultChecked />
+                <Label htmlFor="terms">Accept terms and conditions</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox id="marketing" />
+                <Label htmlFor="marketing">Send me product updates</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox id="disabled" disabled />
+                <Label htmlFor="disabled">Disabled</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox id="disabled-checked" defaultChecked disabled />
+                <Label htmlFor="disabled-checked">Selected + disabled</Label>
               </div>
             </div>
+          </div>
 
-            <div className="space-y-3">
-              <div className="text-xs font-medium text-muted-foreground">Radio</div>
-              <RadioGroup defaultValue="disabled-checked">
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem value="a" id="r-a" />
-                  <Label htmlFor="r-a">Option A</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem value="b" id="r-b" />
-                  <Label htmlFor="r-b">Option B</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem value="c" id="r-c" />
-                  <Label htmlFor="r-c">Option C</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem value="disabled" id="r-disabled" disabled />
-                  <Label htmlFor="r-disabled">Disabled</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem
-                    value="disabled-checked"
-                    id="r-disabled-checked"
-                    disabled
-                  />
-                  <Label htmlFor="r-disabled-checked">Selected + disabled</Label>
-                </div>
-              </RadioGroup>
-            </div>
-          </CardContent>
-          <CardFooter className="text-xs text-muted-foreground">
-            Use Light / Dark in the sidebar to verify tokens.
-          </CardFooter>
-        </Card>
+          <div className="space-y-3">
+            <div className={cn(typeToken("text-xs/medium"), "text-muted-foreground")}>Radio</div>
+            <RadioGroup defaultValue="disabled-checked">
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="a" id="r-a" />
+                <Label htmlFor="r-a">Option A</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="b" id="r-b" />
+                <Label htmlFor="r-b">Option B</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="c" id="r-c" />
+                <Label htmlFor="r-c">Option C</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="disabled" id="r-disabled" disabled />
+                <Label htmlFor="r-disabled">Disabled</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem
+                  value="disabled-checked"
+                  id="r-disabled-checked"
+                  disabled
+                />
+                <Label htmlFor="r-disabled-checked">Selected + disabled</Label>
+              </div>
+            </RadioGroup>
+          </div>
+        </div>
       </section>
 
       <section>
-        <h2 className="mb-1 text-sm font-semibold tracking-tight text-foreground">
+        <h2 className={cn(typeToken("text-sm/semibold"), "mb-1 tracking-tight text-foreground")}>
           Item spacing
         </h2>
-        <p className="mb-3 text-xs text-muted-foreground">
+        <p className={cn(typeToken("text-xs/normal"), "mb-3 text-muted-foreground")}>
           Vertical gap between radio/checkbox rows. Override{" "}
           <code className="rounded bg-muted px-1 py-0.5 text-[11px]">RadioGroup</code>{" "}
           <code className="rounded bg-muted px-1 py-0.5 text-[11px]">className</code> (default{" "}

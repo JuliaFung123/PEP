@@ -20,9 +20,19 @@ The **Field** preview page (`/preview/input-type`, sidebar label **Field**) is t
 
 1. **Before coding inputs in a layout**, read §1 on the Field page (or `FIELD_FRAMEWORK_DIFFERENCES` in the registry).
 2. **Pick the matching §2 row** by Figma Value Type name / behaviour (Text, Select, Date, Multi, field-group variants, etc.).
-3. **Compose** using existing primitives — `Input`, `Field`, `Button` + `inputSurfaceClassName`, `Calendar`, `Popover` — as shown in `InputTypePage.tsx` / `ValueTypeSurface`. Do **not** create parallel component files (e.g. `InputDate.tsx`) unless the user explicitly requests a new primitive.
+3. **Compose** using existing primitives — `LibraryField` / `LibraryFieldSet` for label chrome; Field §2 controls from `@/components/field-library-controls` (`FieldSelect`, `FieldDate`, `FieldTime`, `FieldTextarea`, `FieldMultiImageGrid`) and `@/components/field-multi-selects`; then `Input`, `Button` + `inputSurfaceClassName`, `Calendar`, `Popover` as shown on the Field page. Do **not** invent page-local `gap-*` on `Field`, or duplicate description typography / Select·Date·Time chrome in layout pages.
 4. **If no §2 match exists**, implement against a §3 pending row for review. Do **not** ship to production layouts until the row is promoted to §2.
 5. **When promoting §3 → §2**: change `tier` to `'library'` in `field-input-registry.ts`, remove or archive `pendingNote`, and **add rows to `FIELD_FRAMEWORK_DIFFERENCES`** if the promotion introduces new PEP-vs-shadcn overrides.
+
+## Field chrome (mandatory)
+
+| Piece | Use |
+|-------|-----|
+| Labeled field shell | `@/components/library-field` → `LibraryField` / `LibraryFieldSet` |
+| Field-group box (multi-input row) | `LibraryFieldGroupItem` — one input + optional `error` / `invalid` per box |
+| Primitives only | `@/components/ui/field` (`Field`, `FieldLabel`, …) — prefer via `LibraryField` |
+| Gap | Default `gap-2` on `Field` — **never** override with `gap-1.5` etc. in pages |
+| Description | Built into `FieldDescription` (`text-xs leading-4`) |
 
 ## Styling (from §1)
 
@@ -30,6 +40,8 @@ The **Field** preview page (`/preview/input-type`, sidebar label **Field**) is t
 - Height: **`h-9` (36px)** — keep the shadcn New York input height
 - Elevation: no default field elevation; `hover:shadow-elevation-md`; focus removes elevation + ring
 - Select-like shells: `Button variant="outline"` + `inputSurfaceClassName` (not a separate Select file)
+- **Invalid / error:** one chrome owner paints the ring (`aria-invalid` on that node, or `inputSurfaceInvalidClassName`). Nested controls use `inputInnerControlClassName` — never fan invalid styles out to every child.
+- **Disabled:** `opacity-50` only — same as Checkbox / Radio (`inputSurfaceDisabledClassName` or native `disabled`). No `bg-input/50` fill.
 - Semantic tokens only — no hardcoded hex
 
 ## Files
@@ -38,8 +50,13 @@ The **Field** preview page (`/preview/input-type`, sidebar label **Field**) is t
 |------|------|
 | `pep-web/src/data/field-input-registry.ts` | §1 notes + §2/§3 row tiers |
 | `pep-web/src/pages/InputTypePage.tsx` | Field page UI + `ValueTypeSurface` compositions |
+| `pep-web/src/components/library-field.tsx` | Shared labeled Field / FieldSet shell |
+| `pep-web/src/components/field-library-controls.tsx` | Field §2 Select / Date / Time / Textarea / Image grid |
+| `pep-web/src/components/field-multi-selects.tsx` | Field §2 Multi / Multi Image / Multi Avatar |
 | `pep-web/src/lib/input-surface-classes.ts` | Shared input chrome |
 
 ## Future atom pages
 
 The same **§1 notes / §2 library / §3 pending** pattern will apply to other atom preview pages (Button, Badge, etc.). Mirror this registry + rule structure when those pages are added.
+
+**Table Cell** already uses this pattern: `.cursor/rules/table-cell-library.mdc`, `table-cell-registry.ts`, `/preview/table-cell`.

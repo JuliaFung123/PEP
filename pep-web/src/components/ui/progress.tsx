@@ -1,6 +1,7 @@
 import * as React from "react"
 import { Progress as ProgressPrimitive } from "@base-ui/react/progress"
 
+import { typeToken } from "@/data/typography-tokens"
 import { cn } from "@/lib/utils"
 
 function Progress({
@@ -53,7 +54,7 @@ function ProgressIndicator({
 function ProgressLabel({ className, ...props }: ProgressPrimitive.Label.Props) {
   return (
     <ProgressPrimitive.Label
-      className={cn("text-sm font-medium", className)}
+      className={cn(typeToken("text-sm/medium"), className)}
       data-slot="progress-label"
       {...props}
     />
@@ -64,7 +65,8 @@ function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props) {
   return (
     <ProgressPrimitive.Value
       className={cn(
-        "ml-auto text-sm text-muted-foreground tabular-nums",
+        "ml-auto text-muted-foreground tabular-nums",
+        typeToken("text-sm/normal"),
         className
       )}
       data-slot="progress-value"

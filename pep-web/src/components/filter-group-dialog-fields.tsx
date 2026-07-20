@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { inputSurfaceClassName } from '@/lib/input-surface-classes'
 import { cn } from '@/lib/utils'
+import { typeToken } from "@/data/typography-tokens"
 
 export const filterGroupFieldShellRow = cn(
   inputSurfaceClassName,
@@ -21,7 +22,7 @@ export function FilterGroupDialogFields({ name, onNameChange }: FilterGroupDialo
     <>
       <div className="px-6 pt-0 pb-4">
         <div className="flex flex-col gap-2">
-          <div className="text-xs font-medium text-foreground">Filter Group Name</div>
+          <div className={cn(typeToken("text-xs/medium"), "text-foreground")}>Filter Group Name</div>
           <Input
             value={name}
             onChange={(e) => onNameChange(e.target.value)}
@@ -34,27 +35,27 @@ export function FilterGroupDialogFields({ name, onNameChange }: FilterGroupDialo
 
       <div className="flex flex-col gap-4 px-6 pb-6">
         <div className="flex flex-col gap-2">
-          <div className="min-w-[100px] max-w-[100px] text-xs font-medium text-foreground">
+          <div className={cn(typeToken("text-xs/medium"), "min-w-[100px] max-w-[100px] text-foreground")}>
             {'\u767c\u4f48\u6642\u9593'}
           </div>
           <div className={cn(filterGroupFieldShellRow, 'justify-between')}>
-            <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">DateRange</span>
+            <span className={cn(typeToken("text-sm/normal"), "min-w-0 flex-1 truncate text-muted-foreground")}>DateRange</span>
             <CalendarIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
           </div>
         </div>
 
         <div className="flex flex-col gap-2">
-          <div className="min-w-[100px] max-w-[100px] text-xs font-medium text-foreground">
+          <div className={cn(typeToken("text-xs/medium"), "min-w-[100px] max-w-[100px] text-foreground")}>
             {'\u8209\u884c\u6642\u9593'}
           </div>
           <div className={cn(filterGroupFieldShellRow, 'justify-between')}>
-            <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">DateRange</span>
+            <span className={cn(typeToken("text-sm/normal"), "min-w-0 flex-1 truncate text-muted-foreground")}>DateRange</span>
             <CalendarIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
           </div>
         </div>
 
         <div className="flex flex-col gap-2">
-          <div className="min-w-[100px] max-w-[100px] text-xs font-medium text-foreground">Num</div>
+          <div className={cn(typeToken("text-xs/medium"), "min-w-[100px] max-w-[100px] text-foreground")}>Num</div>
           <div className="flex h-9 min-h-9 items-center gap-1 shadow-elevation-sm">
             <Input
               placeholder="Min"
@@ -62,7 +63,7 @@ export function FilterGroupDialogFields({ name, onNameChange }: FilterGroupDialo
               readOnly
               aria-readonly
             />
-            <span className="shrink-0 px-0.5 text-sm text-muted-foreground">-</span>
+            <span className={cn(typeToken("text-sm/normal"), "shrink-0 px-0.5 text-muted-foreground")}>-</span>
             <Input
               placeholder="Max"
               className="h-9 min-h-9 min-w-[140px] flex-1 shadow-elevation-sm"
@@ -73,7 +74,7 @@ export function FilterGroupDialogFields({ name, onNameChange }: FilterGroupDialo
         </div>
 
         <div className="flex flex-col gap-2">
-          <div className="min-w-[100px] max-w-[100px] text-xs font-medium text-foreground">
+          <div className={cn(typeToken("text-xs/medium"), "min-w-[100px] max-w-[100px] text-foreground")}>
             {'\u72c0\u614b'}
           </div>
           <div
@@ -86,7 +87,8 @@ export function FilterGroupDialogFields({ name, onNameChange }: FilterGroupDialo
             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
               <Badge
                 className={cn(
-                  'h-5 rounded-[10px] border-transparent px-1 py-0.5 text-xs font-medium',
+                  'h-5 rounded-[10px] border-transparent px-1 py-0.5',
+                  typeToken("text-xs/medium"),
                   'bg-primary/15 text-primary hover:bg-primary/20',
                 )}
               >
@@ -94,7 +96,8 @@ export function FilterGroupDialogFields({ name, onNameChange }: FilterGroupDialo
               </Badge>
               <Badge
                 className={cn(
-                  'h-5 rounded-[10px] border-transparent px-1 py-0.5 text-xs font-medium',
+                  'h-5 rounded-[10px] border-transparent px-1 py-0.5',
+                  typeToken("text-xs/medium"),
                   'bg-fuchsia-500/15 text-fuchsia-700 dark:bg-fuchsia-500/20 dark:text-fuchsia-300',
                 )}
               >
@@ -102,7 +105,8 @@ export function FilterGroupDialogFields({ name, onNameChange }: FilterGroupDialo
               </Badge>
               <Badge
                 className={cn(
-                  'h-5 rounded-[10px] border-transparent px-1 py-0.5 text-xs font-medium',
+                  'h-5 rounded-[10px] border-transparent px-1 py-0.5',
+                  typeToken("text-xs/medium"),
                   'bg-primary/15 text-primary hover:bg-primary/20',
                 )}
               >
